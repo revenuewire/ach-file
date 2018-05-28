@@ -1,0 +1,21 @@
+{
+    "name": "revenuewire/ach-payment-file",
+    "type": "library",
+    "description": "Create and upload ACH Payment files",
+    "homepage": "https://github.com/revenuewire/ach-payment-file",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Matthew Casiro",
+            "email": "mattcasiro@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RW\\": "src/"
+        }
+    },
+    "require": {
+        "php": "~7.2.6"
+    }    
+}
