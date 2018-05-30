@@ -1,0 +1,10 @@
+<phpunit
+    bootstrap="tests/autoload.php"
+    colors="true"
+    verbose="true">
+    <testsuites>
+        <testsuite name="NACHA Test Suite">
+            <directory>tests/NACHA</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
