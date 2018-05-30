@@ -15,7 +15,15 @@
             "RW\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "RW\\Tests\\": "tests/"
+        }
+    },
     "require": {
         "php": "~7.2.6"
-    }    
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.1"
+    }
 }
