@@ -3,8 +3,8 @@
     colors="true"
     verbose="true">
     <testsuites>
-        <testsuite name="NACHA Test Suite">
-            <directory>tests/NACHA</directory>
+        <testsuite name="ACH Test Suite">
+            <directory>tests/ACH</directory>
         </testsuite>
     </testsuites>
 </phpunit>

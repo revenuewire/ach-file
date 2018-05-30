@@ -4,3 +4,6 @@ composer.phar
 
 # IDE files
 .idea
+
+# Other
+playground.php
