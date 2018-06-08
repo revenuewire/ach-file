@@ -9,7 +9,7 @@
 namespace RW\ACH;
 
 
-class EntryDetail extends FileComponent
+class EntryDetailRecord extends FileComponent
 {
     /* FIXED VALUES */
     private const FIXED_RECORD_TYPE_CODE = '6';
@@ -42,19 +42,36 @@ class EntryDetail extends FileComponent
         self::ADDENDA_INDICATOR => null,
     ];
 
-    private const VALID_TRANSACTION_CODES = [
-        'CHECKING_CREDIT_DEPOSIT'     => '22',
-        'CHECKING_CREDIT_PRE-NOTE'    => '23',
-        'CHECKING_CREDIT_ZERO_DOLLAR' => '24',
-        'CHECKING_DEBIT_PAYMENT'      => '27',
-        'CHECKING_DEBIT_PRE-NOTE'     => '28',
-        'CHECKING_DEBIT_ZERO_DOLLAR'  => '29',
-        'SAVINGS_CREDIT_DEPOSIT'      => '32',
-        'SAVINGS_CREDIT_PRE-NOTE'     => '33',
-        'SAVINGS_CREDIT_ZERO_DOLLAR'  => '34',
-        'SAVINGS_DEBIT_PAYMENT'       => '37',
-        'SAVINGS_DEBIT_PRE-NOTE'      => '38',
-        'SAVINGS_DEBIT_ZERO_DOLLAR'   => '39',
+    /* TRANSACTION CODES */
+    public const CHECKING_CREDIT_DEPOSIT     = '22';
+    public const CHECKING_CREDIT_PRE_NOTE    = '23';
+    public const CHECKING_CREDIT_ZERO_DOLLAR = '24';
+    public const SAVINGS_CREDIT_DEPOSIT      = '32';
+    public const SAVINGS_CREDIT_PRE_NOTE     = '33';
+    public const SAVINGS_CREDIT_ZERO_DOLLAR  = '34';
+
+    public const CHECKING_DEBIT_PAYMENT     = '27';
+    public const CHECKING_DEBIT_PRE_NOTE    = '28';
+    public const CHECKING_DEBIT_ZERO_DOLLAR = '29';
+    public const SAVINGS_DEBIT_PAYMENT      = '37';
+    public const SAVINGS_DEBIT_PRE_NOTE     = '38';
+    public const SAVINGS_DEBIT_ZERO_DOLLAR  = '39';
+
+    public const CREDIT_TRANSACTION_CODES = [
+        self::CHECKING_CREDIT_DEPOSIT,
+        self::CHECKING_CREDIT_PRE_NOTE,
+        self::CHECKING_CREDIT_ZERO_DOLLAR,
+        self::SAVINGS_CREDIT_DEPOSIT,
+        self::SAVINGS_CREDIT_PRE_NOTE,
+        self::SAVINGS_CREDIT_ZERO_DOLLAR,
+    ];
+    public const DEBIT_TRANSACTION_CODES  = [
+        self::CHECKING_DEBIT_PAYMENT,
+        self::CHECKING_DEBIT_PRE_NOTE,
+        self::CHECKING_DEBIT_ZERO_DOLLAR,
+        self::SAVINGS_DEBIT_PAYMENT,
+        self::SAVINGS_DEBIT_PRE_NOTE,
+        self::SAVINGS_DEBIT_ZERO_DOLLAR,
     ];
 
     private $entryDetailSequenceNumber;
@@ -76,8 +93,8 @@ class EntryDetail extends FileComponent
                     // Work with an integer for easy processing
                     $v = (int) $v;
 
-                    $fields[self::CHECK_DIGIT]        = $v % 10;         // Extract the last digit
                     $fields[self::TRANSIT_ABA_NUMBER] = (int) ($v / 10); // Dump the last digit
+                    $fields[self::CHECK_DIGIT]        = $v % 10;         // Extract the last digit
                     break;
                 case self::AMOUNT:
                     // We can't work with amounts that aren't numeric, so add special validation here to prevent
@@ -96,7 +113,23 @@ class EntryDetail extends FileComponent
                     $fields[self::ADDENDA_INDICATOR] = $v ?: self::DEFAULT_ADDENDA_INDICATOR;
             }
         }
+
         parent::__construct($fields);
+    }
+
+    public function getTransitAbaNumber()
+    {
+        return $this->fieldSpecifications[self::TRANSIT_ABA_NUMBER][self::CONTENT];
+    }
+
+    public function getTransactionCode()
+    {
+        return $this->fieldSpecifications[self::TRANSACTION_CODE][self::CONTENT];
+    }
+
+    public function getAmount()
+    {
+        return $this->fieldSpecifications[self::AMOUNT][self::CONTENT];
     }
 
     /**
@@ -119,8 +152,10 @@ class EntryDetail extends FileComponent
      *      ...
      *  ]
      */
-    protected function getFieldSpecifications()
+    protected function getDefaultFieldSpecifications()
     {
+        $validTransactionCodes = array_merge(self::DEBIT_TRANSACTION_CODES, self::CREDIT_TRANSACTION_CODES);
+
         return [
             self::RECORD_TYPE_CODE   => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
@@ -134,7 +169,7 @@ class EntryDetail extends FileComponent
             self::TRANSACTION_CODE   => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
                 self::FORMAT          => 'NNNNNN',
-                self::VALIDATOR       => [self::VALIDATOR_ARRAY, self::VALID_TRANSACTION_CODES],
+                self::VALIDATOR       => [self::VALIDATOR_ARRAY, $validTransactionCodes],
                 self::LENGTH          => 2,
                 self::POSITION_START  => 2,
                 self::POSITION_END    => 3,

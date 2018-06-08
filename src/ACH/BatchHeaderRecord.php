@@ -11,7 +11,7 @@ namespace RW\ACH;
 
 use DateTime;
 
-class BatchHeader extends FileComponent
+class BatchHeaderRecord extends FileComponent
 {
     /* FIXED VALUES */
     private const FIXED_RECORD_TYPE_CODE       = '5';
@@ -25,14 +25,13 @@ class BatchHeader extends FileComponent
     private const ORIGINATOR_STATUS_CODE = 'ORIGINATOR_STATUS_CODE';
     private const EFFECTIVE_ENTRY_DATE   = 'EFFECTIVE_ENTRY_DATE';   // variable, but managed through ENTRY_DATE_OVERRIDE
     /* VARIABLE VALUE FIELD NAMES */
-    public const SERVICE_CLASS_CODE        = 'SERVICE_CLASS_CODE';
     public const COMPANY_NAME              = 'COMPANY_NAME';
     public const DISCRETIONARY_DATA        = 'DISCRETIONARY_DATA';
-    public const COMPANY_IDENTIFICATION    = 'COMPANY_IDENTIFICATION';
+    public const COMPANY_ID                = 'COMPANY_ID';
     public const STANDARD_ENTRY_CLASS_CODE = 'STANDARD_ENTRY_CLASS_CODE';
     public const COMPANY_ENTRY_DESCRIPTION = 'COMPANY_ENTRY_DESCRIPTION';
     public const COMPANY_DESCRIPTIVE_DATE  = 'COMPANY_DESCRIPTIVE_DATE'; // ENTRY_DATE_OVERRIDE is used if not provided
-    public const ORIGINATING_DFI_ID        = 'ORIGINATING_FINANCIAL_INSTITUTION';
+    public const ORIGINATING_DFI_ID        = 'ORIGINATING_DFI_ID';
     public const BATCH_NUMBER              = 'BATCH_NUMBER';
 
     /* Set the date and time in one using a DateTime object */
@@ -41,7 +40,7 @@ class BatchHeader extends FileComponent
     protected const REQUIRED_FIELDS = [
         self::SERVICE_CLASS_CODE,
         self::COMPANY_NAME,
-        self::COMPANY_IDENTIFICATION,
+        self::COMPANY_ID,
         self::STANDARD_ENTRY_CLASS_CODE,
         self::COMPANY_ENTRY_DESCRIPTION,
         self::ORIGINATING_DFI_ID,
@@ -53,27 +52,23 @@ class BatchHeader extends FileComponent
         self::COMPANY_DESCRIPTIVE_DATE => null,
     ];
 
-    public const MIXED_SERVICE_CLASS  = '200';
-    public const CREDIT_SERVICE_CLASS = '220';
-    public const DEBIT_SERVICE_CLASS  = '225';
-
     /**
      * BatchHeader constructor.
      *
      * @param array $fields is an array of field key => value pairs as follows:
      *                      [
      *                          // Required
-     *                          BatchHeader::SERVICE_CLASS_CODE        => One of MIXED_SERVICE_CLASS, CREDIT_SERVICE_CLASS, DEBIT_SERVICE_CLASS
-     *                          BatchHeader::COMPANY_NAME              => Alphanumeric string of length > 0 and <= 16
-     *                          BatchHeader::COMPANY_IDENTIFICATION    => 10 digits
-     *                          BatchHeader::STANDARD_ENTRY_CLASS_CODE => 3 characters representing the entry format
-     *                          BatchHeader::COMPANY_ENTRY_DESCRIPTION => Alphanumeric string of length > 1 and <= 10 describing the purpose of the entry to the receiver
-     *                          BatchHeader::ORIGINATING_DFI_ID        => 8 digits representing where the file will be delivered for processing
-     *                          BatchHeader::BATCH_NUMBER              => 7 digits identifying the sequential order of this batch
+     *                          SERVICE_CLASS_CODE        => One of MIXED_SERVICE_CLASS, CREDIT_SERVICE_CLASS, DEBIT_SERVICE_CLASS
+     *                          COMPANY_NAME              => Alphanumeric string of length > 0 and <= 16
+     *                          COMPANY_ID    => 10 digits
+     *                          STANDARD_ENTRY_CLASS_CODE => 3 characters representing the entry format
+     *                          COMPANY_ENTRY_DESCRIPTION => Alphanumeric string of length > 1 and <= 10 describing the purpose of the entry to the receiver
+     *                          ORIGINATING_DFI_ID        => 8 digits representing where the file will be delivered for processing
+     *                          BATCH_NUMBER              => 7 digits identifying the sequential order of this batch
      *                          // Optional
-     *                          BatchHeader::ENTRY_DATE_OVERRIDE       => DateTime object (default: current date)
-     *                          BatchHeader::DISCRETIONARY_DATA        => Alphanumeric string of length >= 0 and <= 20 (internal use)
-     *                          BatchHeader::COMPANY_DESCRIPTIVE_DATE  => DateTime object (default: Entry Date Override,
+     *                          ENTRY_DATE_OVERRIDE       => DateTime object (default: current date)
+     *                          DISCRETIONARY_DATA        => Alphanumeric string of length >= 0 and <= 20 (internal use)
+     *                          COMPANY_DESCRIPTIVE_DATE  => DateTime object (default: Entry Date Override,
      *                      ]
      * @throws ValidationException
      */
@@ -133,7 +128,7 @@ class BatchHeader extends FileComponent
      *      ...
      *  ]
      */
-    protected function getFieldSpecifications()
+    protected function getDefaultFieldSpecifications()
     {
         return [
             self::RECORD_TYPE_CODE          => [
@@ -174,7 +169,7 @@ class BatchHeader extends FileComponent
                 self::PADDING         => self::ALPHANUMERIC_PADDING,
                 self::CONTENT         => null,
             ],
-            self::COMPANY_IDENTIFICATION    => [
+            self::COMPANY_ID                => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
                 self::FORMAT          => 'NNNNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{10}$/'],
