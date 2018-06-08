@@ -11,7 +11,7 @@ namespace RW\ACH;
 
 use DateTime;
 
-class FileHeader extends FileComponent
+class FileHeaderRecord extends FileComponent
 {
     /* FIXED VALUES */
     private const FIXED_RECORD_TYPE_CODE = '1';
@@ -127,7 +127,7 @@ class FileHeader extends FileComponent
      *      ...
      *  ]
      */
-    protected function getFieldSpecifications()
+    protected function getDefaultFieldSpecifications()
     {
         return [
             self::RECORD_TYPE_CODE      => [

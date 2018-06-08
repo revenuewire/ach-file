@@ -20,7 +20,8 @@ use InvalidArgumentException;
 abstract class FileComponent
 {
     /* RE-USED FIELD NAMES */
-    protected const RECORD_TYPE_CODE = 'RECORD_TYPE_CODE';
+    protected const RECORD_TYPE_CODE   = 'RECORD_TYPE_CODE';
+    public const    SERVICE_CLASS_CODE = 'SERVICE_CLASS_CODE';
 
     /* FIELD SPECIFICATION KEYS */
     protected const FIELD_INCLUSION    = 'FIELD_INCLUSION';
@@ -37,6 +38,11 @@ abstract class FileComponent
     protected const VALIDATOR_DATETIME = 2;
     protected const VALIDATOR_ARRAY    = 3;
 
+    /* SERVICE CLASS CODES */
+    public const    DEBIT_SERVICE_CLASS  = '225';
+    public const    MIXED_SERVICE_CLASS  = '200';
+    public const    CREDIT_SERVICE_CLASS = '220';
+
     /* REQUIREMENT TYPES */
     // Information necessary to ensure the proper routing and/or posting of an ACH entry
     protected const FIELD_INCLUSION_MANDATORY = 'M';
@@ -51,6 +57,10 @@ abstract class FileComponent
     /* PADDING TYPES */
     protected const ALPHANUMERIC_PADDING = ' ';
     protected const NUMERIC_PADDING      = '0';
+
+    /* GENERAL CONSTANTS */
+    public const DEBIT  = 'DEBIT';
+    public const CREDIT = 'CREDIT';
 
     // Field values and validation data
     protected $fieldSpecifications;
@@ -69,7 +79,7 @@ abstract class FileComponent
             throw new InvalidArgumentException('Cannot create file header without all required fields, missing: ' . implode(', ', $missing_fields));
         }
 
-        $this->fieldSpecifications = $this->getFieldSpecifications();
+        $this->fieldSpecifications = $this->getDefaultFieldSpecifications();
 
         // Remove any extra fields that are not part of the specification
         $fields = array_intersect_key($fields, $this->fieldSpecifications);
@@ -100,7 +110,7 @@ abstract class FileComponent
      *      ...
      *  ]
      */
-    protected abstract function getFieldSpecifications();
+    protected abstract function getDefaultFieldSpecifications();
 
     /**
      * Validate the value and set the CONTENT of a specific field
