@@ -130,7 +130,36 @@ class BatchControlRecordTest extends TestCase
     {
         $batchHeaderRecord  = $input[BatchHeaderRecord::class];
         $entryDetailRecords = $input[EntryDetailRecord::class];
-        $batchControlRecord = new BatchControlRecord($batchHeaderRecord, $entryDetailRecords);
+
+        $transitSum = 0;
+        /** @var EntryDetailRecord $entryDetailRecord */
+        foreach ($entryDetailRecords as $entryDetailRecord) {
+            $transitSum += (int) $entryDetailRecord->getTransitAbaNumber();
+        }
+
+        $debitDollarSum = 0;
+        /** @var EntryDetailRecord $entryDetailRecord */
+        foreach ($entryDetailRecords as $entryDetailRecord) {
+            if (in_array($entryDetailRecord->getTransactionCode(), EntryDetailRecord::DEBIT_TRANSACTION_CODES)) {
+                $debitDollarSum += (int) $entryDetailRecord->getAmount();
+            }
+        }
+
+        $creditDollarSum = 0;
+        /** @var EntryDetailRecord $entryDetailRecord */
+        foreach ($entryDetailRecords as $entryDetailRecord) {
+            if (in_array($entryDetailRecord->getTransactionCode(), EntryDetailRecord::CREDIT_TRANSACTION_CODES)) {
+                $creditDollarSum += (int) $entryDetailRecord->getAmount();
+            }
+        }
+
+        $batchControlRecord = new BatchControlRecord(
+            $batchHeaderRecord,
+            count($entryDetailRecords),
+            $transitSum,
+            $debitDollarSum,
+            $creditDollarSum
+        );
         $this->assertEquals($output, $batchControlRecord->toString());
     }
 }

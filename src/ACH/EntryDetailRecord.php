@@ -107,7 +107,7 @@ class EntryDetailRecord extends FileComponent
                     break;
                 case self::TRACE_NUMBER:
                     // Concatenate the provided immediate destination, and the left-padded sequence number
-                    $fields[self::TRACE_NUMBER] = bcadd(bcmul($v, '10000000', 0), $sequence, 0);
+                    $fields[self::TRACE_NUMBER] = $v . str_pad($sequence, 7, '0', STR_PAD_LEFT);
                     break;
                 case self::ADDENDA_INDICATOR:
                     $fields[self::ADDENDA_INDICATOR] = $v ?: self::DEFAULT_ADDENDA_INDICATOR;
@@ -117,17 +117,17 @@ class EntryDetailRecord extends FileComponent
         parent::__construct($fields);
     }
 
-    public function getTransitAbaNumber()
+    public function getTransitAbaNumber(): string
     {
         return $this->fieldSpecifications[self::TRANSIT_ABA_NUMBER][self::CONTENT];
     }
 
-    public function getTransactionCode()
+    public function getTransactionCode(): string
     {
         return $this->fieldSpecifications[self::TRANSACTION_CODE][self::CONTENT];
     }
 
-    public function getAmount()
+    public function getAmount(): string
     {
         return $this->fieldSpecifications[self::AMOUNT][self::CONTENT];
     }
@@ -152,7 +152,7 @@ class EntryDetailRecord extends FileComponent
      *      ...
      *  ]
      */
-    protected function getDefaultFieldSpecifications()
+    protected function getDefaultFieldSpecifications(): array
     {
         $validTransactionCodes = array_merge(self::DEBIT_TRANSACTION_CODES, self::CREDIT_TRANSACTION_CODES);
 

@@ -9,6 +9,15 @@
 namespace RW\ACH;
 
 
-class PaymentFile
+class PaymentFile extends ComponentCollection
 {
+    public function getBlockCount(): int
+    {
+        // TODO: Implement getBlockCount() method.
+    }
+
+    protected function getControlRecord(): FileComponent
+    {
+        // TODO: Implement getControlRecord() method.
+    }
 }

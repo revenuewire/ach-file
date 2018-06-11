@@ -16,12 +16,10 @@ use RW\ACH\ValidationException;
 
 class FileHeaderRecordTest extends TestCase
 {
-    // region Valid Inputs
     private const VALID_IMMEDIATE_DESTINATION = ' 123456789';
     private const VALID_IMMEDIATE_ORIGIN      = '0123456789';
     private const VALID_DESTINATION           = 'abcdefg0123456789';
     private const VALID_ORIGIN_NAME           = 'abcdefg9876543210';
-    // endregion
 
     // region Data Providers
     public function missingRequiredFieldInputsProvider()
