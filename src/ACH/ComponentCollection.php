@@ -30,12 +30,81 @@ abstract class ComponentCollection
         $this->headerRecord = $headerRecord;
     }
 
-    protected abstract function getControlRecord(): FileComponent;
+    public function getEntryAndAddendaCount(): int
+    {
+        $entryAndAddendaCount = 0;
+        foreach ($this->collection as $component) {
+            if ($component instanceof ComponentCollection) {
+                $entryAndAddendaCount += $component->getEntryAndAddendaCount();
+            } else {
+                $entryAndAddendaCount += $component->getBlockCount();
+            }
+        }
 
-    public abstract function getBlockCount(): int;
+        return $entryAndAddendaCount;
+    }
+
+    public function getBlockCount(): int
+    {
+        if ($this->isOpen) {
+            throw new \BadMethodCallException('Unable to obtain the block count of an open batch');
+        }
+
+        // Every component collection type should have a header record, a control record, and some number of
+        // components >= 0. Because the control record may require this call as part of the constructor, we
+        // don't make the call on the header and control records directly - the control record may not exist yet!
+        $blockCount = 2;
+        foreach ($this->collection as $component) {
+            $blockCount += $component->getBlockCount();
+        }
+
+        return $blockCount;
+    }
 
     /**
-     * @param EntryDetailRecord $component
+     * @return int
+     */
+    public function getSumOfTransitNumbers(): int
+    {
+        $transitSum = 0;
+        // Collection items should always drill down to an Entry Detail Record eventually
+        /** @var EntryDetailRecord $component */
+        foreach ($this->collection as $component) {
+            if ($component instanceof ComponentCollection) {
+                $transitSum += $component->getSumOfTransitNumbers();
+            } else {
+                $transitSum += (int) $component->getTransitAbaNumber();
+            }
+        }
+
+        return $transitSum;
+    }
+
+    /**
+     * @param array $validTransactionCodes
+     * @return string
+     */
+    public function getEntryDollarSum($validTransactionCodes): string
+    {
+        $dollarSum = '0';
+        // Collection items should always drill down to an Entry Detail Record eventually
+        /** @var EntryDetailRecord $component */
+        foreach ($this->collection as $component) {
+            if ($component instanceof ComponentCollection) {
+                $dollarSum = bcadd($component->getEntryDollarSum($validTransactionCodes), $dollarSum, 0);
+            } elseif (in_array($component->getTransactionCode(), $validTransactionCodes)) {
+                // Amounts should always be retrieved without decimals ($11.35 = '1135')
+                $dollarSum = bcadd($component->getAmount(), $dollarSum, 0);
+            }
+        }
+
+        return "$dollarSum";
+    }
+
+    protected abstract function getControlRecord(): FileComponent;
+
+    /**
+     * @param ComponentCollection|FileComponent $component
      * @return ComponentCollection for clean method chaining.
      */
     public function addComponent($component): ComponentCollection
