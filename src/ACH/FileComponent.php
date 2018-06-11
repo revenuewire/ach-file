@@ -20,8 +20,13 @@ use InvalidArgumentException;
 abstract class FileComponent
 {
     /* RE-USED FIELD NAMES */
-    protected const RECORD_TYPE_CODE   = 'RECORD_TYPE_CODE';
-    public const    SERVICE_CLASS_CODE = 'SERVICE_CLASS_CODE';
+    protected const RECORD_TYPE_CODE                 = 'RECORD_TYPE_CODE';
+    protected const ENTRY_AND_ADDENDA_COUNT          = 'ENTRY_AND_ADDENDA_COUNT';
+    protected const ENTRY_HASH                       = 'ENTRY_HASH';
+    protected const TOTAL_DEBIT_ENTRY_DOLLAR_AMOUNT  = 'TOTAL_DEBIT_ENTRY_DOLLAR_AMOUNT';
+    protected const TOTAL_CREDIT_ENTRY_DOLLAR_AMOUNT = 'TOTAL_CREDIT_ENTRY_DOLLAR_AMOUNT';
+    protected const RESERVED                         = 'RESERVED';
+    public const    SERVICE_CLASS_CODE               = 'SERVICE_CLASS_CODE';
 
     /* FIELD SPECIFICATION KEYS */
     protected const FIELD_INCLUSION    = 'FIELD_INCLUSION';
@@ -76,7 +81,7 @@ abstract class FileComponent
         // Check for required fields
         $missing_fields = array_diff(static::REQUIRED_FIELDS, array_keys($fields));
         if ($missing_fields) {
-            throw new InvalidArgumentException('Cannot create file header without all required fields, missing: ' . implode(', ', $missing_fields));
+            throw new InvalidArgumentException('Cannot create ' . static::class . ' without all required fields, missing: ' . implode(', ', $missing_fields));
         }
 
         $this->fieldSpecifications = $this->getDefaultFieldSpecifications();
@@ -87,7 +92,17 @@ abstract class FileComponent
         foreach ($fields as $k => $v) {
             $this->setField($k, $v);
         }
+    }
 
+    /**
+     * Standard file components consist of a single 'block' (line), but this can be overwritten
+     * to account for special cases like addenda records within entry detail records.
+     *
+     * @return int
+     */
+    public function getBlockCount(): int
+    {
+        return 1;
     }
 
     /**
@@ -109,11 +124,13 @@ abstract class FileComponent
      *      ],
      *      ...
      *  ]
+     *
+     * @return array
      */
-    protected abstract function getDefaultFieldSpecifications();
+    protected abstract function getDefaultFieldSpecifications(): array;
 
     /**
-     * Validate the value and set the CONTENT of a specific field
+     * Validate the value and set the CONTENT of a specific field.
      *
      * @param $k
      * @param $v

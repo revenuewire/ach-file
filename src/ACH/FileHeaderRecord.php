@@ -126,8 +126,10 @@ class FileHeaderRecord extends FileComponent
      *      ],
      *      ...
      *  ]
+     *
+     * @return array
      */
-    protected function getDefaultFieldSpecifications()
+    protected function getDefaultFieldSpecifications(): array
     {
         return [
             self::RECORD_TYPE_CODE      => [
