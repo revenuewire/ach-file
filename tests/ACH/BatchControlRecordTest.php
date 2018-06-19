@@ -49,7 +49,7 @@ class BatchControlRecordTest extends TestCase
                         BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                         BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
                         BatchHeaderRecord::BATCH_NUMBER              => self::VALID_BATCH_NUMBER,
-                        BatchHeaderRecord::ENTRY_DATE_OVERRIDE       => new \DateTime('2018-05-29 01:02:03'),
+                        BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new \DateTime('2018-05-29 01:02:03'),
                     ]),
                     EntryDetailRecord::class => [],
                 ],
@@ -67,7 +67,7 @@ class BatchControlRecordTest extends TestCase
                         BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                         BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
                         BatchHeaderRecord::BATCH_NUMBER              => self::VALID_BATCH_NUMBER,
-                        BatchHeaderRecord::ENTRY_DATE_OVERRIDE       => new \DateTime('2018-05-29 01:02:03'),
+                        BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new \DateTime('2018-05-29 01:02:03'),
                     ]),
                     EntryDetailRecord::class => [
                         new EntryDetailRecord([
@@ -94,7 +94,7 @@ class BatchControlRecordTest extends TestCase
                         BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                         BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
                         BatchHeaderRecord::BATCH_NUMBER              => self::VALID_BATCH_NUMBER,
-                        BatchHeaderRecord::ENTRY_DATE_OVERRIDE       => new \DateTime('2018-05-29 01:02:03'),
+                        BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new \DateTime('2018-05-29 01:02:03'),
                     ]),
                     EntryDetailRecord::class => [
                         new EntryDetailRecord([
@@ -134,26 +134,26 @@ class BatchControlRecordTest extends TestCase
         $transitSum = 0;
         /** @var EntryDetailRecord $entryDetailRecord */
         foreach ($entryDetailRecords as $entryDetailRecord) {
-            $transitSum += (int) $entryDetailRecord->getTransitAbaNumber();
+            $transitSum += (int) $entryDetailRecord->getField(EntryDetailRecord::TRANSIT_ABA_NUMBER);
         }
 
         $debitDollarSum = 0;
         /** @var EntryDetailRecord $entryDetailRecord */
         foreach ($entryDetailRecords as $entryDetailRecord) {
-            if (in_array($entryDetailRecord->getTransactionCode(), EntryDetailRecord::DEBIT_TRANSACTION_CODES)) {
-                $debitDollarSum += (int) $entryDetailRecord->getAmount();
+            if (in_array($entryDetailRecord->getField(EntryDetailRecord::TRANSACTION_CODE), EntryDetailRecord::DEBIT_TRANSACTION_CODES)) {
+                $debitDollarSum += (int) $entryDetailRecord->getField(EntryDetailRecord::AMOUNT);
             }
         }
 
         $creditDollarSum = 0;
         /** @var EntryDetailRecord $entryDetailRecord */
         foreach ($entryDetailRecords as $entryDetailRecord) {
-            if (in_array($entryDetailRecord->getTransactionCode(), EntryDetailRecord::CREDIT_TRANSACTION_CODES)) {
-                $creditDollarSum += (int) $entryDetailRecord->getAmount();
+            if (in_array($entryDetailRecord->getField(EntryDetailRecord::TRANSACTION_CODE), EntryDetailRecord::CREDIT_TRANSACTION_CODES)) {
+                $creditDollarSum += (int) $entryDetailRecord->getField(EntryDetailRecord::AMOUNT);
             }
         }
 
-        $batchControlRecord = new BatchControlRecord(
+        $batchControlRecord = BatchControlRecord::buildFromBatchData(
             $batchHeaderRecord,
             count($entryDetailRecords),
             $transitSum,
@@ -161,5 +161,15 @@ class BatchControlRecordTest extends TestCase
             $creditDollarSum
         );
         $this->assertEquals($output, $batchControlRecord->toString());
+    }
+
+    /**
+     * @throws \RW\ACH\ValidationException
+     */
+    public function testValidStringInputGeneratesValidBatchControlRecord()
+    {
+        $input = '820000000000000000000000000000000000000000000123456789                         876543210000001';
+        $fhr   = BatchControlRecord::buildFromString($input);
+        $this->assertEquals($input, $fhr->toString());
     }
 }

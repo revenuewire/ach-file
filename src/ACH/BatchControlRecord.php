@@ -12,7 +12,7 @@ namespace RW\ACH;
 class BatchControlRecord extends FileComponent
 {
     /* FIXED VALUES */
-    private const FIXED_RECORD_TYPE_CODE = '8';
+    public const FIXED_RECORD_TYPE_CODE = '8';
 
     /* FIXED VALUE FIELD NAMES */
     private const MESSAGE_AUTHENTICATION_CODE      = 'MESSAGE_AUTHENTICATION_CODE';
@@ -23,22 +23,24 @@ class BatchControlRecord extends FileComponent
     private const BATCH_NUMBER                     = 'BATCH_NUMBER';
 
     /**
-     * BatchControl constructor.
+     * BatchControlRecord builder using the batch header to ensure cross-referenced data is accurate. This is
+     * the recommended method of creating a batch control record when using fresh data.
      *
      * @param BatchHeaderRecord $batchHeaderRecord
      * @param string            $entryAndAddendaCount
      * @param int               $transitSum
      * @param string            $debitDollarSum
      * @param string            $creditDollarSum
+     * @return BatchControlRecord
      * @throws ValidationException
      */
-    public function __construct(
+    public static function buildFromBatchData(
         $batchHeaderRecord,
         $entryAndAddendaCount,
         $transitSum,
         $debitDollarSum,
         $creditDollarSum
-    ) {
+    ): BatchControlRecord {
         // Use the ten low-order (right most) digits from the sum of the transit numbers
         $entryHash                  = $transitSum % 10000000000;
 
@@ -47,7 +49,7 @@ class BatchControlRecord extends FileComponent
         $originatingDfiIdField      = $batchHeaderRecord->fieldSpecifications[BatchHeaderRecord::ORIGINATING_DFI_ID];
         $batchNumberField           = $batchHeaderRecord->fieldSpecifications[BatchHeaderRecord::BATCH_NUMBER];
 
-        parent::__construct([
+        return new BatchControlRecord([
             self::SERVICE_CLASS_CODE               => $serviceClassCodeField[self::CONTENT],
             self::ENTRY_AND_ADDENDA_COUNT          => $entryAndAddendaCount,
             self::ENTRY_HASH                       => "$entryHash",
@@ -58,7 +60,7 @@ class BatchControlRecord extends FileComponent
             self::RESERVED                         => null,
             self::ORIGINATING_DFI_ID               => $originatingDfiIdField[self::CONTENT],
             self::BATCH_NUMBER                     => $batchNumberField[self::CONTENT],
-        ]);
+        ], true);
     }
 
     /**
@@ -67,7 +69,6 @@ class BatchControlRecord extends FileComponent
      *  $this->fieldSpecifications = [
      *      FIELD_NAME => [
      *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
-     *          self::FORMAT          => Description of the expected format (informational)
      *          self::VALIDATOR       => array: [
      *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
      *              Validation string (regular expression or date-time format)
@@ -83,12 +84,11 @@ class BatchControlRecord extends FileComponent
      *
      * @return array
      */
-    protected function getDefaultFieldSpecifications(): array
+    protected static function getFieldSpecifications(): array
     {
         return [
             self::RECORD_TYPE_CODE                 => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'N',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
                 self::LENGTH          => 1,
                 self::POSITION_START  => 1,
@@ -97,7 +97,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::SERVICE_CLASS_CODE               => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^(200|220|225)$/'],
                 self::LENGTH          => 3,
                 self::POSITION_START  => 2,
@@ -106,7 +105,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::ENTRY_AND_ADDENDA_COUNT          => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,6}$/'],
                 self::LENGTH          => 6,
                 self::POSITION_START  => 5,
@@ -116,7 +114,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::ENTRY_HASH                       => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,10}$/'],
                 self::LENGTH          => 10,
                 self::POSITION_START  => 11,
@@ -126,7 +123,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::TOTAL_DEBIT_ENTRY_DOLLAR_AMOUNT  => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => '$$$$$$$$$cc',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{0,12}$/'],
                 self::LENGTH          => 12,
                 self::POSITION_START  => 21,
@@ -136,7 +132,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::TOTAL_CREDIT_ENTRY_DOLLAR_AMOUNT => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => '$$$$$$$$$cc',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{0,12}$/'],
                 self::LENGTH          => 12,
                 self::POSITION_START  => 33,
@@ -146,7 +141,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::COMPANY_ID                       => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
-                self::FORMAT          => 'NNNNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{10}$/'],
                 self::LENGTH          => 10,
                 self::POSITION_START  => 45,
@@ -155,7 +149,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::MESSAGE_AUTHENTICATION_CODE      => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::FORMAT          => 'bbbbbbbbbbbbbbbbbbb',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^ {0,19}$/'],
                 self::LENGTH          => 19,
                 self::POSITION_START  => 55,
@@ -165,7 +158,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::RESERVED                         => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::FORMAT          => 'bbbbbb',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^ {0,6}$/'],
                 self::LENGTH          => 6,
                 self::POSITION_START  => 74,
@@ -175,7 +167,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::ORIGINATING_DFI_ID               => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{8}$/'],
                 self::LENGTH          => 8,
                 self::POSITION_START  => 80,
@@ -184,7 +175,6 @@ class BatchControlRecord extends FileComponent
             ],
             self::BATCH_NUMBER                     => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,7}$/'],
                 self::LENGTH          => 7,
                 self::POSITION_START  => 88,

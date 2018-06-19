@@ -20,6 +20,8 @@ abstract class ComponentCollection
     /** @var FileComponent */
     protected $controlRecord;
 
+    protected static abstract function buildFromResource($handle, &$count = null);
+
     /**
      * Batch constructor.
      *
@@ -30,6 +32,9 @@ abstract class ComponentCollection
         $this->headerRecord = $headerRecord;
     }
 
+    /**
+     * @return int
+     */
     public function getEntryAndAddendaCount(): int
     {
         $entryAndAddendaCount = 0;
@@ -44,10 +49,13 @@ abstract class ComponentCollection
         return $entryAndAddendaCount;
     }
 
+    /**
+     * @return int
+     */
     public function getBlockCount(): int
     {
         if ($this->isOpen) {
-            throw new \BadMethodCallException('Unable to obtain the block count of an open batch');
+            throw new \BadMethodCallException('Unable to obtain the block count of an open ' . static::class);
         }
 
         // Every component collection type should have a header record, a control record, and some number of
@@ -73,7 +81,7 @@ abstract class ComponentCollection
             if ($component instanceof ComponentCollection) {
                 $transitSum += $component->getSumOfTransitNumbers();
             } else {
-                $transitSum += (int) $component->getTransitAbaNumber();
+                $transitSum += (int) $component->getField(EntryDetailRecord::TRANSIT_ABA_NUMBER);
             }
         }
 
@@ -92,9 +100,9 @@ abstract class ComponentCollection
         foreach ($this->collection as $component) {
             if ($component instanceof ComponentCollection) {
                 $dollarSum = bcadd($component->getEntryDollarSum($validTransactionCodes), $dollarSum, 0);
-            } elseif (in_array($component->getTransactionCode(), $validTransactionCodes)) {
+            } elseif (in_array($component->getField(EntryDetailRecord::TRANSACTION_CODE), $validTransactionCodes)) {
                 // Amounts should always be retrieved without decimals ($11.35 = '1135')
-                $dollarSum = bcadd($component->getAmount(), $dollarSum, 0);
+                $dollarSum = bcadd($component->getField(EntryDetailRecord::AMOUNT), $dollarSum, 0);
             }
         }
 
@@ -105,9 +113,9 @@ abstract class ComponentCollection
 
     /**
      * @param ComponentCollection|FileComponent $component
-     * @return ComponentCollection for clean method chaining.
+     * @return static for clean method chaining.
      */
-    public function addComponent($component): ComponentCollection
+    public function addComponent($component)
     {
         if (!$this->isOpen) {
             throw new \BadMethodCallException('Unable to add entries to a closed collection');
@@ -121,9 +129,9 @@ abstract class ComponentCollection
     /**
      * Finalize the batch and generate the Batch Control Record
      *
-     * @return ComponentCollection for clean method chaining
+     * @return static for clean method chaining
      */
-    public function close(): ComponentCollection
+    public function close()
     {
         $this->isOpen = false;
         $this->controlRecord = $this->getControlRecord();
