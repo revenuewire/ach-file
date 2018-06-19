@@ -21,7 +21,7 @@ class FileControlRecordTest extends TestCase
     private const VALID_FILE_HEADER_DATA = [
         FileHeaderRecord::IMMEDIATE_DESTINATION => ' 123456789',
         FileHeaderRecord::IMMEDIATE_ORIGIN      => '0123456789',
-        FileHeaderRecord::DESTINATION           => 'abcdefg0123456789',
+        FileHeaderRecord::DESTINATION_NAME      => 'abcdefg0123456789',
         FileHeaderRecord::ORIGIN_NAME           => 'abcdefg9876543210',
     ];
 
@@ -61,7 +61,7 @@ class FileControlRecordTest extends TestCase
         $batchNumber = 1;
         while ($batchNumber < 4) {
             $validBatchHeaderData[BatchHeaderRecord::BATCH_NUMBER] = $batchNumber;
-            $batch = new Batch(new BatchHeaderRecord($validBatchHeaderData));
+            $batch                                                 = new Batch(new BatchHeaderRecord($validBatchHeaderData));
             $batch->addComponent(new EntryDetailRecord($validEntryDetailData1, 1));
             $batch->addComponent(new EntryDetailRecord($validEntryDetailData2, 2));
             $batch->close();
@@ -112,9 +112,8 @@ class FileControlRecordTest extends TestCase
             $creditDollarSum = bcadd($batch->getEntryDollarSum(EntryDetailRecord::CREDIT_TRANSACTION_CODES), $creditDollarSum);
         }
 
-        $fileControlRecord = new FileControlRecord(
-            $fileHeaderRecord,
-            count($input),
+        $fileControlRecord = FileControlRecord::buildFromBatchData(
+            ((string) count($input)),
             "$blockCount",
             "$entryAndAddendaCount",
             $transitSum,
@@ -123,5 +122,15 @@ class FileControlRecordTest extends TestCase
         );
 
         $this->assertEquals($output, $fileControlRecord->toString());
+    }
+
+    /**
+     * @throws \RW\ACH\ValidationException
+     */
+    public function testValidStringInputGeneratesValidFileControlRecord()
+    {
+        $input = '9000000000002000000000000000000000000000000000000000000                                       ';
+        $fhr   = FileControlRecord::buildFromString($input);
+        $this->assertEquals($input, $fhr->toString());
     }
 }

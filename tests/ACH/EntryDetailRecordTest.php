@@ -10,6 +10,7 @@ namespace RW\Tests\ACH;
 
 
 use PHPUnit\Framework\TestCase;
+use RW\ACH\AddendaRecord;
 use RW\ACH\EntryDetailRecord;
 use RW\ACH\ValidationException;
 
@@ -23,6 +24,19 @@ class EntryDetailRecordTest extends TestCase
     private const VALID_TRACE_NUMBER       = '12345678';
     private const VALID_ID_NUMBER          = 'AF34B52';
     private const VALID_DRAFT_INDICATOR    = '1*';
+
+    /** @var AddendaRecord */
+    private $validAddendaRecord;
+
+    /**
+     * @throws ValidationException
+     */
+    public function setUp()
+    {
+        $this->validAddendaRecord = AddendaRecord::buildFromString(
+            '798C02111000020000020      05140518051403164                                   111000024637403'
+        );
+    }
 
     // region Data Providers
     public function missingRequiredFieldInputsProvider()
@@ -605,6 +619,38 @@ class EntryDetailRecordTest extends TestCase
      */
     public function testValidInputGeneratesCorrectEntryDetailRecord($input, $output)
     {
-        $this->assertEquals($output, (new EntryDetailRecord($input, 1))->toString());
+        $entryDetailRecord = new EntryDetailRecord($input, 1);
+        if (($input[EntryDetailRecord::ADDENDA_INDICATOR] ?? null) === '1') {
+            $entryDetailRecord->setAddendaRecord($this->validAddendaRecord);
+            $output .= "\n{$this->validAddendaRecord->toString()}";
+        }
+        $this->assertEquals($output, $entryDetailRecord->toString());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidStringInputGeneratesValidEntryDetailRecord()
+    {
+        $input             = '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    0123456780000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($input);
+        $this->assertEquals($input, $entryDetailRecord->toString());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidStringInputWithAddendaGeneratesValidEntryDetailRecord()
+    {
+        $addendaString = '799C02111000020000020      05140518051403164                                   111000024637403';
+        $addendaRecord = AddendaRecord::buildFromString($addendaString);
+
+        $entryDetailRecordString = '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    1123456780000001';
+        $entryDetailRecord       = EntryDetailRecord::buildFromString($entryDetailRecordString);
+        $entryDetailRecord->setAddendaRecord($addendaRecord);
+
+        $output = "{$entryDetailRecordString}\n{$addendaString}";
+
+        $this->assertEquals($output, $entryDetailRecord->toString());
     }
 }

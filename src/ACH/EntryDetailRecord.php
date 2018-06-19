@@ -12,7 +12,7 @@ namespace RW\ACH;
 class EntryDetailRecord extends FileComponent
 {
     /* FIXED VALUES */
-    private const FIXED_RECORD_TYPE_CODE = '6';
+    public const FIXED_RECORD_TYPE_CODE = '6';
     /* DEFAULT VALUES */
     private const DEFAULT_ADDENDA_INDICATOR = '0';
     /* VARIABLE VALUE FIELD NAMES */
@@ -74,9 +74,176 @@ class EntryDetailRecord extends FileComponent
         self::SAVINGS_DEBIT_ZERO_DOLLAR,
     ];
 
+    /** @var int */
     private $entryDetailSequenceNumber;
+    /** @var AddendaRecord */
+    private $addendaRecord;
 
-    public function __construct(array $fields, int $sequence)
+    /**
+     * @param string $input 94 character fixed-width ACH Record string
+     * @return EntryDetailRecord
+     * @throws ValidationException
+     */
+    public static function buildFromString($input): EntryDetailRecord
+    {
+        $buildData                           = self::getBuildDataFromInputString($input);
+        $buildData[self::TRANSIT_ABA_NUMBER] = $buildData[self::TRANSIT_ABA_NUMBER] . $buildData[self::CHECK_DIGIT];
+        $buildData[self::TRACE_NUMBER]       = substr($buildData[self::TRACE_NUMBER], 0, 8);
+
+        // Convert amount to float format
+        $buildData[self::AMOUNT] = ltrim($buildData[self::AMOUNT], '0');
+        $buildData[self::AMOUNT] = preg_replace('/(\d{2})$/', '.$1', $buildData[self::AMOUNT]);
+
+        // Extract the sequence number from the last 7 digits
+        $sequenceNumber = (int) substr($input, (94 - 7), 7);
+
+        return new EntryDetailRecord($buildData, $sequenceNumber, false);
+    }
+
+    /**
+     * Generate the field specifications for each field in the file component.
+     * Format is an array of arrays as follows:
+     *  $this->fieldSpecifications = [
+     *      FIELD_NAME => [
+     *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
+     *          self::VALIDATOR       => array: [
+     *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
+     *              Validation string (regular expression or date-time format)
+     *          ]
+     *          self::LENGTH          => Required if 'PADDING' is provided: Fixed width of the field
+     *          self::POSITION_START  => Starting position within the component (reserved for future use)
+     *          self::POSITION_END    => Ending position within the component (reserved for future use)
+     *          self::PADDING         => Optional: self::ALPHANUMERIC_PADDING or self::NUMERIC_PADDING
+     *          self::CONTENT         => The content to be output for this field
+     *      ],
+     *      ...
+     *  ]
+     */
+    protected static function getFieldSpecifications(): array
+    {
+        $validTransactionCodes = array_merge(self::DEBIT_TRANSACTION_CODES, self::CREDIT_TRANSACTION_CODES);
+
+        return [
+            self::RECORD_TYPE_CODE   => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
+                self::LENGTH          => 1,
+                self::POSITION_START  => 1,
+                self::POSITION_END    => 1,
+                self::CONTENT         => self::FIXED_RECORD_TYPE_CODE,
+            ],
+            self::TRANSACTION_CODE   => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_ARRAY, $validTransactionCodes],
+                self::LENGTH          => 2,
+                self::POSITION_START  => 2,
+                self::POSITION_END    => 3,
+                self::CONTENT         => null,
+            ],
+            self::TRANSIT_ABA_NUMBER => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{8}$/'],
+                self::LENGTH          => 8,
+                self::POSITION_START  => 4,
+                self::POSITION_END    => 11,
+                // We need to pad these to make sure numbers with leading 0's aren't truncated
+                self::PADDING         => self::NUMERIC_PADDING,
+                self::CONTENT         => '',
+            ],
+            self::CHECK_DIGIT        => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
+                self::LENGTH          => 1,
+                self::POSITION_START  => 12,
+                self::POSITION_END    => 12,
+                self::CONTENT         => null,
+            ],
+            self::DFI_ACCOUNT_NUMBER => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[-a-zA-Z0-9 ]{1,17}$/'],
+                self::LENGTH          => 17,
+                self::POSITION_START  => 13,
+                self::POSITION_END    => 29,
+                self::PADDING         => self::ALPHANUMERIC_PADDING,
+                self::CONTENT         => null,
+            ],
+            self::AMOUNT             => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,10}$/'],
+                self::LENGTH          => 10,
+                self::POSITION_START  => 30,
+                self::POSITION_END    => 39,
+                self::PADDING         => self::NUMERIC_PADDING,
+                self::CONTENT         => null,
+            ],
+            self::ID_NUMBER          => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[-a-zA-Z0-9 ]{0,15}$/'],
+                self::LENGTH          => 15,
+                self::POSITION_START  => 40,
+                self::POSITION_END    => 54,
+                self::PADDING         => self::ALPHANUMERIC_PADDING,
+                self::CONTENT         => null,
+            ],
+            self::INDIVIDUAL_NAME    => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[a-zA-Z0-9 ]{1,22}$/'],
+                self::LENGTH          => 22,
+                self::POSITION_START  => 55,
+                self::POSITION_END    => 76,
+                self::PADDING         => self::ALPHANUMERIC_PADDING,
+                self::CONTENT         => null,
+            ],
+            self::DRAFT_INDICATOR    => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^((1[\?\*])|  )?$/'],
+                self::LENGTH          => 2,
+                self::POSITION_START  => 77,
+                self::POSITION_END    => 78,
+                self::PADDING         => self::ALPHANUMERIC_PADDING,
+                self::CONTENT         => null,
+            ],
+            self::ADDENDA_INDICATOR  => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[01]$/'],
+                self::LENGTH          => 1,
+                self::POSITION_START  => 79,
+                self::POSITION_END    => 79,
+                self::CONTENT         => null,
+            ],
+            self::TRACE_NUMBER       => [
+                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{15}$/'],
+                self::LENGTH          => 15,
+                self::POSITION_START  => 80,
+                self::POSITION_END    => 94,
+                self::CONTENT         => null,
+            ],
+        ];
+    }
+
+    /**
+     * EntryDetailRecord constructor.
+     *
+     * @param array $fields         is an array of field key => value pairs as follows:
+     *                              [
+     *                                  // Required
+     *                                  TRANSACTION_CODE   =>
+     *                                  TRANSIT_ABA_NUMBER =>
+     *                                  DFI_ACCOUNT_NUMBER =>
+     *                                  AMOUNT             =>
+     *                                  INDIVIDUAL_NAME    =>
+     *                                  TRACE_NUMBER       =>
+     *                                  // Optional
+     *                                  ID_NUMBER         =>
+     *                                  DRAFT_INDICATOR   =>
+     *                                  ADDENDA_INDICATOR =>
+     *                              ]
+     * @param int   $sequence
+     * @param bool  $validate
+     * @throws ValidationException
+     */
+    public function __construct(array $fields, int $sequence, $validate = true)
     {
         if (!is_array($fields)) {
             throw new \InvalidArgumentException('fields argument must be of type array.');
@@ -99,7 +266,7 @@ class EntryDetailRecord extends FileComponent
                 case self::AMOUNT:
                     // We can't work with amounts that aren't numeric, so add special validation here to prevent
                     // bcmul from silently converting bad inputs to zero
-                    if (!is_numeric($v)) {
+                    if (!is_numeric($v) && $validate) {
                         throw new ValidationException('Value: "' . ($v ?? 'null') . '" for "' . $k . '" must be numeric');
                     }
                     // Move decimal over and dump extra digits
@@ -114,153 +281,44 @@ class EntryDetailRecord extends FileComponent
             }
         }
 
-        parent::__construct($fields);
-    }
-
-    public function getTransitAbaNumber(): string
-    {
-        return $this->fieldSpecifications[self::TRANSIT_ABA_NUMBER][self::CONTENT];
-    }
-
-    public function getTransactionCode(): string
-    {
-        return $this->fieldSpecifications[self::TRANSACTION_CODE][self::CONTENT];
-    }
-
-    public function getAmount(): string
-    {
-        return $this->fieldSpecifications[self::AMOUNT][self::CONTENT];
+        parent::__construct($fields, $validate);
     }
 
     /**
-     * Generate the field specifications for each field in the file component.
-     * Format is an array of arrays as follows:
-     *  $this->fieldSpecifications = [
-     *      FIELD_NAME => [
-     *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
-     *          self::FORMAT          => Description of the expected format (informational)
-     *          self::VALIDATOR       => array: [
-     *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
-     *              Validation string (regular expression or date-time format)
-     *          ]
-     *          self::LENGTH          => Required if 'PADDING' is provided: Fixed width of the field
-     *          self::POSITION_START  => Starting position within the component (reserved for future use)
-     *          self::POSITION_END    => Ending position within the component (reserved for future use)
-     *          self::PADDING         => Optional: self::ALPHANUMERIC_PADDING or self::NUMERIC_PADDING
-     *          self::CONTENT         => The content to be output for this field
-     *      ],
-     *      ...
-     *  ]
+     * @return bool
      */
-    protected function getDefaultFieldSpecifications(): array
+    public function hasAddendaRecord(): bool
     {
-        $validTransactionCodes = array_merge(self::DEBIT_TRANSACTION_CODES, self::CREDIT_TRANSACTION_CODES);
+        return (
+            $this->fieldSpecifications[self::ADDENDA_INDICATOR][self::CONTENT] === '1'
+            || $this->addendaRecord !== null
+        );
+    }
 
-        return [
-            self::RECORD_TYPE_CODE   => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'N',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
-                self::LENGTH          => 1,
-                self::POSITION_START  => 1,
-                self::POSITION_END    => 1,
-                self::CONTENT         => self::FIXED_RECORD_TYPE_CODE,
-            ],
-            self::TRANSACTION_CODE   => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNN',
-                self::VALIDATOR       => [self::VALIDATOR_ARRAY, $validTransactionCodes],
-                self::LENGTH          => 2,
-                self::POSITION_START  => 2,
-                self::POSITION_END    => 3,
-                self::CONTENT         => null,
-            ],
-            self::TRANSIT_ABA_NUMBER => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNN',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{8}$/'],
-                self::LENGTH          => 8,
-                self::POSITION_START  => 4,
-                self::POSITION_END    => 11,
-                self::CONTENT         => '',
-            ],
-            self::CHECK_DIGIT        => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'N',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
-                self::LENGTH          => 1,
-                self::POSITION_START  => 12,
-                self::POSITION_END    => 12,
-                self::CONTENT         => null,
-            ],
-            self::DFI_ACCOUNT_NUMBER => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
-                self::FORMAT          => 'Alphanumeric',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[-a-zA-Z0-9 ]{1,17}$/'],
-                self::LENGTH          => 17,
-                self::POSITION_START  => 13,
-                self::POSITION_END    => 29,
-                self::PADDING         => self::ALPHANUMERIC_PADDING,
-                self::CONTENT         => null,
-            ],
-            self::AMOUNT             => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => '$$$$$$$$$cc',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,10}$/'],
-                self::LENGTH          => 10,
-                self::POSITION_START  => 30,
-                self::POSITION_END    => 39,
-                self::PADDING         => self::NUMERIC_PADDING,
-                self::CONTENT         => null,
-            ],
-            self::ID_NUMBER          => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::FORMAT          => 'Alphanumeric',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[-a-zA-Z0-9 ]{0,15}$/'],
-                self::LENGTH          => 15,
-                self::POSITION_START  => 40,
-                self::POSITION_END    => 54,
-                self::PADDING         => self::ALPHANUMERIC_PADDING,
-                self::CONTENT         => null,
-            ],
-            self::INDIVIDUAL_NAME    => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
-                self::FORMAT          => 'Alphanumeric',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[a-zA-Z0-9 ]{1,22}$/'],
-                self::LENGTH          => 22,
-                self::POSITION_START  => 55,
-                self::POSITION_END    => 76,
-                self::PADDING         => self::ALPHANUMERIC_PADDING,
-                self::CONTENT         => null,
-            ],
-            self::DRAFT_INDICATOR    => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::FORMAT          => 'Alphanumeric',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^((1[\?\*])|  )?$/'],
-                self::LENGTH          => 2,
-                self::POSITION_START  => 77,
-                self::POSITION_END    => 78,
-                self::PADDING         => self::ALPHANUMERIC_PADDING,
-                self::CONTENT         => null,
-            ],
-            self::ADDENDA_INDICATOR  => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'N',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[01]$/'],
-                self::LENGTH          => 1,
-                self::POSITION_START  => 79,
-                self::POSITION_END    => 79,
-                self::CONTENT         => null,
-            ],
-            self::TRACE_NUMBER       => [
-                self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNNNNNNNNN',
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{15}$/'],
-                self::LENGTH          => 15,
-                self::POSITION_START  => 80,
-                self::POSITION_END    => 94,
-                self::CONTENT         => null,
-            ],
-        ];
+    /**
+     * @return AddendaRecord
+     */
+    public function getAddendaRecord(): AddendaRecord
+    {
+        return $this->addendaRecord;
+    }
+
+    /**
+     * @param $v
+     * @return EntryDetailRecord
+     */
+    public function setAddendaRecord($v): EntryDetailRecord
+    {
+        $this->addendaRecord = $v;
+        $this->fieldSpecifications[self::ADDENDA_INDICATOR][self::CONTENT] = '1';
+
+        return $this;
+    }
+
+    public function toString()
+    {
+        $addendaString = $this->hasAddendaRecord() ? "\n{$this->addendaRecord->toString()}" : '';
+
+        return parent::toString() . $addendaString;
     }
 }

@@ -11,12 +11,35 @@ namespace RW\ACH;
 
 class FileControlRecord extends FileComponent
 {
-    const FIXED_RECORD_TYPE_CODE = '9';
-    const BATCH_COUNT            = 'BATCH_COUNT';
-    const BLOCK_COUNT            = 'BLOCK_COUNT';
+    /* FIXED VALUES */
+    public const FIXED_RECORD_TYPE_CODE = '9';
+    /* CALCULATED/RETRIEVED VALUE FIELD NAMES */
+    private const BATCH_COUNT = 'BATCH_COUNT';
+    private const BLOCK_COUNT = 'BLOCK_COUNT';
 
-    public function __construct(
-        $fileHeaderRecord,
+    /**
+     * @param string $input
+     * @return FileControlRecord
+     * @throws ValidationException
+     */
+    public static function buildFromString($input): FileControlRecord
+    {
+        $buildData = self::getBuildDataFromInputString($input);
+
+        return new FileControlRecord($buildData, false);
+    }
+
+    /**
+     * @param string $batchCount
+     * @param string $blockCount
+     * @param string $entryAndAddendaCount
+     * @param int    $transitSum
+     * @param string $debitDollarSum
+     * @param string $creditDollarSum
+     * @return FileControlRecord
+     * @throws ValidationException
+     */
+    public static function buildFromBatchData(
         $batchCount,
         $blockCount,
         $entryAndAddendaCount,
@@ -27,7 +50,7 @@ class FileControlRecord extends FileComponent
         // Use the ten low-order (right most) digits from the sum of the transit numbers
         $entryHash = $transitSum % 10000000000;
 
-        parent::__construct([
+        return new FileControlRecord([
             self::BATCH_COUNT                      => $batchCount,
             self::BLOCK_COUNT                      => $blockCount,
             self::ENTRY_AND_ADDENDA_COUNT          => $entryAndAddendaCount,
@@ -35,7 +58,7 @@ class FileControlRecord extends FileComponent
             self::TOTAL_DEBIT_ENTRY_DOLLAR_AMOUNT  => $debitDollarSum,
             self::TOTAL_CREDIT_ENTRY_DOLLAR_AMOUNT => $creditDollarSum,
             self::RESERVED                         => null,
-        ]);
+        ], true);
     }
 
     /**
@@ -44,7 +67,6 @@ class FileControlRecord extends FileComponent
      *  $this->fieldSpecifications = [
      *      FIELD_NAME => [
      *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
-     *          self::FORMAT          => Description of the expected format (informational)
      *          self::VALIDATOR       => array: [
      *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
      *              Validation string (regular expression or date-time format)
@@ -60,12 +82,11 @@ class FileControlRecord extends FileComponent
      *
      * @return array
      */
-    protected function getDefaultFieldSpecifications(): array
+    protected static function getFieldSpecifications(): array
     {
         return [
             self::RECORD_TYPE_CODE                 => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'N',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1}$/'],
                 self::LENGTH          => 1,
                 self::POSITION_START  => 1,
@@ -74,7 +95,6 @@ class FileControlRecord extends FileComponent
             ],
             self::BATCH_COUNT                      => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,6}$/'],
                 self::LENGTH          => 6,
                 self::POSITION_START  => 2,
@@ -84,7 +104,6 @@ class FileControlRecord extends FileComponent
             ],
             self::BLOCK_COUNT                      => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,6}$/'],
                 self::LENGTH          => 6,
                 self::POSITION_START  => 8,
@@ -94,7 +113,6 @@ class FileControlRecord extends FileComponent
             ],
             self::ENTRY_AND_ADDENDA_COUNT          => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,8}$/'],
                 self::LENGTH          => 8,
                 self::POSITION_START  => 14,
@@ -104,7 +122,6 @@ class FileControlRecord extends FileComponent
             ],
             self::ENTRY_HASH                       => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => 'NNNNNNNNNNN',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,10}$/'],
                 self::LENGTH          => 10,
                 self::POSITION_START  => 22,
@@ -114,7 +131,6 @@ class FileControlRecord extends FileComponent
             ],
             self::TOTAL_DEBIT_ENTRY_DOLLAR_AMOUNT  => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => '$$$$$$$$$cc',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{0,12}$/'],
                 self::LENGTH          => 12,
                 self::POSITION_START  => 32,
@@ -124,7 +140,6 @@ class FileControlRecord extends FileComponent
             ],
             self::TOTAL_CREDIT_ENTRY_DOLLAR_AMOUNT => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::FORMAT          => '$$$$$$$$$cc',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{0,12}$/'],
                 self::LENGTH          => 12,
                 self::POSITION_START  => 44,
@@ -134,7 +149,6 @@ class FileControlRecord extends FileComponent
             ],
             self::RESERVED                         => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::FORMAT          => '',
                 self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^ {0,39}$/'],
                 self::LENGTH          => 39,
                 self::POSITION_START  => 56,
@@ -143,16 +157,5 @@ class FileControlRecord extends FileComponent
                 self::CONTENT         => null,
             ],
         ];
-    }
-
-    private function getTotalEntryDollarAmount($batches, $validTransactionCodes): string
-    {
-        $dollarSum = 0;
-        /** @var Batch $batch */
-        foreach ($batches as $batch) {
-            $dollarSum += (int) $batch->getEntryDollarSum($validTransactionCodes);
-        }
-
-        return "$dollarSum";
     }
 }

@@ -39,7 +39,7 @@ class FileHeaderRecordTest extends TestCase
                 // Missing Immediate Destination
                 [
                     FileHeaderRecord::IMMEDIATE_ORIGIN => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION      => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME      => self::VALID_ORIGIN_NAME,
                 ],
                 \InvalidArgumentException::class,
@@ -48,7 +48,7 @@ class FileHeaderRecordTest extends TestCase
                 // Missing Immediate Origin
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 \InvalidArgumentException::class,
@@ -67,7 +67,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                 ],
                 \InvalidArgumentException::class,
             ],
@@ -82,7 +82,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => ' A23456789',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -92,7 +92,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => ' 12345678',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -102,7 +102,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => '12345678',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -112,7 +112,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => ' 0123456789',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -122,7 +122,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => '0123456789',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -132,7 +132,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => '',
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -142,7 +142,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => null,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -152,7 +152,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => 'A123456789',
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -162,7 +162,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => '123456789',
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -172,7 +172,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => '01234567890',
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -182,7 +182,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => '',
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -192,7 +192,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => null,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -202,7 +202,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => '',
+                    FileHeaderRecord::DESTINATION_NAME      => '',
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -212,7 +212,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => null,
+                    FileHeaderRecord::DESTINATION_NAME      => null,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                 ],
                 ValidationException::class,
@@ -222,7 +222,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => '',
                 ],
                 ValidationException::class,
@@ -232,7 +232,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => null,
                 ],
                 ValidationException::class,
@@ -242,7 +242,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                     FileHeaderRecord::FILE_ID_MODIFIER      => 'a',
                 ],
@@ -253,7 +253,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                     FileHeaderRecord::REFERENCE_CODE        => 'ZZYY990$',
                 ],
@@ -264,7 +264,7 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
                     FileHeaderRecord::REFERENCE_CODE        => 'ZZYY99001',
                 ],
@@ -280,9 +280,9 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
-                    FileHeaderRecord::FILE_DATE_OVERRIDE    => new DateTime('2018-05-29 15:19:23'),
+                    FileHeaderRecord::FILE_DATE             => new DateTime('2018-05-29 15:19:23'),
                 ],
                 '101 12345678901234567891805291519A094101ABCDEFG0123456789      ABCDEFG9876543210              ',
             ],
@@ -290,9 +290,9 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
-                    FileHeaderRecord::FILE_DATE_OVERRIDE    => new DateTime('2018-05-29 15:19:23'),
+                    FileHeaderRecord::FILE_DATE             => new DateTime('2018-05-29 15:19:23'),
                     FileHeaderRecord::FILE_ID_MODIFIER      => 'B',
                 ],
                 '101 12345678901234567891805291519B094101ABCDEFG0123456789      ABCDEFG9876543210              ',
@@ -301,9 +301,9 @@ class FileHeaderRecordTest extends TestCase
                 [
                     FileHeaderRecord::IMMEDIATE_DESTINATION => self::VALID_IMMEDIATE_DESTINATION,
                     FileHeaderRecord::IMMEDIATE_ORIGIN      => self::VALID_IMMEDIATE_ORIGIN,
-                    FileHeaderRecord::DESTINATION           => self::VALID_DESTINATION,
+                    FileHeaderRecord::DESTINATION_NAME      => self::VALID_DESTINATION,
                     FileHeaderRecord::ORIGIN_NAME           => self::VALID_ORIGIN_NAME,
-                    FileHeaderRecord::FILE_DATE_OVERRIDE    => new DateTime('2018-05-29 15:19:23'),
+                    FileHeaderRecord::FILE_DATE             => new DateTime('2018-05-29 15:19:23'),
                     FileHeaderRecord::REFERENCE_CODE        => 'ZZYY9900',
                 ],
                 '101 12345678901234567891805291519A094101ABCDEFG0123456789      ABCDEFG9876543210      ZZYY9900',
@@ -355,5 +355,15 @@ class FileHeaderRecordTest extends TestCase
     public function testValidInputGeneratesCorrectFileHeaderRecord($input, $output)
     {
         $this->assertEquals($output, (new FileHeaderRecord($input))->toString());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidStringInputGeneratesValidFileHeaderRecord()
+    {
+        $input = '101 12345678901234567891805291519A094101ABCDEFG0123456789      ABCDEFG9876543210              ';
+        $fhr   = FileHeaderRecord::buildFromString($input);
+        $this->assertEquals($input, $fhr->toString());
     }
 }

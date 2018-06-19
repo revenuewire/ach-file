@@ -533,9 +533,9 @@ class BatchHeaderRecordTest extends TestCase
                     BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                     BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
                     BatchHeaderRecord::BATCH_NUMBER              => self::VALID_BATCH_NUMBER,
-                    BatchHeaderRecord::ENTRY_DATE_OVERRIDE       => new \DateTime('2018-05-29 01:02:03'),
+                    BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new \DateTime('2018-05-29 01:02:03'),
                 ],
-                '5200A REAL COMPANY  A REAL DESCRIPTION  0123456789PPDPAYROLL   180529180529   1876543210000001',
+                '5200A REAL COMPANY  A REAL DESCRIPTION  0123456789PPDPAYROLL         180529   1876543210000001',
             ],
             [
                 [
@@ -547,7 +547,7 @@ class BatchHeaderRecordTest extends TestCase
                     BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                     BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
                     BatchHeaderRecord::BATCH_NUMBER              => '2',
-                    BatchHeaderRecord::ENTRY_DATE_OVERRIDE       => new \DateTime('2018-05-29 01:02:03'),
+                    BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new \DateTime('2018-05-29 01:02:03'),
                     BatchHeaderRecord::COMPANY_DESCRIPTIVE_DATE  => new \DateTime('2018-05-28 02:03:04'),
                 ],
                 '5220A REAL COMPANY2 A REAL DESCRIPTION2 0123456789PPDPAYROLL   180528180529   1876543210000002',
@@ -599,5 +599,15 @@ class BatchHeaderRecordTest extends TestCase
     public function testValidInputGeneratesCorrectBatchHeaderRecord($input, $output)
     {
         $this->assertEquals($output, (new BatchHeaderRecord($input))->toString());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidStringInputGeneratesValidBatchHeaderRecord()
+    {
+        $input = '5200A REAL COMPANY  A REAL DESCRIPTION  0123456789PPDPAYROLL   180529180529   1876543210000001';
+        $fhr   = BatchHeaderRecord::buildFromString($input);
+        $this->assertEquals($input, $fhr->toString());
     }
 }
