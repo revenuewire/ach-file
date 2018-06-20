@@ -9,6 +9,12 @@
 namespace RW\ACH;
 
 
+/**
+ * Class ComponentCollection represents a collection of FileComponent objects used to
+ * maintain groupings in files and batches
+ *
+ * @package RW\ACH
+ */
 abstract class ComponentCollection
 {
     /** @var bool */
@@ -109,9 +115,36 @@ abstract class ComponentCollection
         return "$dollarSum";
     }
 
+    /**
+     * Get the header record.
+     *
+     * @return FileComponent
+     */
+    public function getHeaderRecord(): FileComponent
+    {
+        return $this->headerRecord;
+    }
+
+    /**
+     * Get the collection.
+     *
+     * @return ComponentCollection[]|FileComponent[]
+     */
+    public function getCollection(): array
+    {
+        return $this->collection;
+    }
+
+    /**
+     * Override this method to generate and return an appropriate control record.
+     *
+     * @return FileComponent
+     */
     protected abstract function getControlRecord(): FileComponent;
 
     /**
+     * Add a component to the collection, such as a batch to a file, or an entry detail record to a batch.
+     *
      * @param ComponentCollection|FileComponent $component
      * @return static for clean method chaining.
      */
@@ -139,6 +172,11 @@ abstract class ComponentCollection
         return $this;
     }
 
+    /**
+     * Get the string representation of the entire collection.
+     *
+     * @return string
+     */
     public function toString()
     {
         if ($this->isOpen) {
@@ -149,7 +187,7 @@ abstract class ComponentCollection
         foreach ($this->collection as $component) {
             $content .= "{$component->toString()}\n";
         }
-        // Don't add an extra new line here, let the caller decide if it is required.
+        // Don't add a trailing newline character, let the caller decide if it is required.
         $content .= "{$this->controlRecord->toString()}";
 
         return $content;

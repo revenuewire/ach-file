@@ -9,6 +9,11 @@
 namespace RW\ACH;
 
 
+/**
+ * Class AddendaRecord represents any type of Addenda record attached to an Entry Detail record.
+ *
+ * @package RW\ACH
+ */
 abstract class AddendaRecord extends FileComponent
 {
     public const CODE = 'CODE';
@@ -22,6 +27,9 @@ abstract class AddendaRecord extends FileComponent
     public const TRACE_NUMBER                = 'TRACE_NUMBER';
 
     /**
+     * Build an Addenda record from an existing string. Supported Addenda record types will be identified by the
+     * Addenda Type Code in fixed position 02-03.
+     *
      * @param string $input
      * @return ReturnEntryAddenda|NoticeOfChangeAddenda
      * @throws ValidationException

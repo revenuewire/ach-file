@@ -9,6 +9,11 @@
 namespace RW\ACH;
 
 
+/**
+ * Class NoticeOfChangeAddenda
+ *
+ * @package RW\ACH
+ */
 class NoticeOfChangeAddenda extends AddendaRecord
 {
     public const CHANGE_CODE    = 'CHANGE_CODE';
@@ -59,6 +64,8 @@ class NoticeOfChangeAddenda extends AddendaRecord
     public const C69 = [self::CODE => 'C69', self::NOTE => 'Incorrect transaction code'];
 
     /**
+     * Build a Notice of Change addenda record from an existing string.
+     *
      * @param string $input
      * @return NoticeOfChangeAddenda
      * @throws ValidationException
@@ -68,6 +75,27 @@ class NoticeOfChangeAddenda extends AddendaRecord
         return new NoticeOfChangeAddenda(self::getBuildDataFromInputString($input), false);
     }
 
+    /**
+     * Generate the field specifications for each field in the file component.
+     * Format is an array of arrays as follows:
+     *  $this->fieldSpecifications = [
+     *      FIELD_NAME => [
+     *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
+     *          self::VALIDATOR       => array: [
+     *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
+     *              Validation string (regular expression or date-time format)
+     *          ]
+     *          self::LENGTH          => Required if 'PADDING' is provided: Fixed width of the field
+     *          self::POSITION_START  => Starting position within the component (reserved for future use)
+     *          self::POSITION_END    => Ending position within the component (reserved for future use)
+     *          self::PADDING         => Optional: self::ALPHANUMERIC_PADDING or self::NUMERIC_PADDING
+     *          self::CONTENT         => The content to be output for this field
+     *      ],
+     *      ...
+     *  ]
+     *
+     * @return array
+     */
     protected static function getFieldSpecifications(): array
     {
         return [

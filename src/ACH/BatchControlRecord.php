@@ -9,6 +9,11 @@
 namespace RW\ACH;
 
 
+/**
+ * Class BatchControlRecord
+ *
+ * @package RW\ACH
+ */
 class BatchControlRecord extends FileComponent
 {
     /* FIXED VALUES */
@@ -23,8 +28,8 @@ class BatchControlRecord extends FileComponent
     private const BATCH_NUMBER                     = 'BATCH_NUMBER';
 
     /**
-     * BatchControlRecord builder using the batch header to ensure cross-referenced data is accurate. This is
-     * the recommended method of creating a batch control record when using fresh data.
+     * BatchControlRecord builder using the Batch Header record to ensure cross-referenced data is accurate. This is
+     * the recommended method of creating a Batch Control record when using generated data.
      *
      * @param BatchHeaderRecord $batchHeaderRecord
      * @param string            $entryAndAddendaCount

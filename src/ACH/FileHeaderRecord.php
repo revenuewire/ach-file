@@ -11,6 +11,11 @@ namespace RW\ACH;
 
 use DateTime;
 
+/**
+ * Class FileHeaderRecord
+ *
+ * @package RW\ACH
+ */
 class FileHeaderRecord extends FileComponent
 {
     /* FIELD NAMES */
@@ -50,18 +55,6 @@ class FileHeaderRecord extends FileComponent
         self::FILE_ID_MODIFIER => null,
         self::REFERENCE_CODE   => null,
     ];
-
-    /**
-     * @param string $input
-     * @return FileHeaderRecord
-     * @throws ValidationException
-     */
-    public static function buildFromString($input): FileHeaderRecord
-    {
-        $buildData = self::getBuildDataFromInputString($input);
-
-        return new FileHeaderRecord($buildData, false);
-    }
 
     /**
      * Generate the field specifications for each field in the file component.
@@ -230,10 +223,14 @@ class FileHeaderRecord extends FileComponent
         parent::__construct($fields, $validate);
     }
 
+    /**
+     * @param $fields
+     * @return array
+     */
     protected function getModifiedFields($fields): array
     {
         // If the date override was provided, use it. Otherwise use today's date.
-        $fileDate = $fields[self::FILE_DATE] ?: new DateTime();
+        $fileDate                         = $fields[self::FILE_DATE] ?: new DateTime();
         $fields[self::FILE_CREATION_DATE] = $fileDate->format('ymd');
         $fields[self::FILE_CREATION_TIME] = $fileDate->format('Hi');
 

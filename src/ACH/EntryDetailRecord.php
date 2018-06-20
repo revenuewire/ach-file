@@ -9,6 +9,11 @@
 namespace RW\ACH;
 
 
+/**
+ * Class EntryDetailRecord
+ *
+ * @package RW\ACH
+ */
 class EntryDetailRecord extends FileComponent
 {
     /* FIXED VALUES */
@@ -80,6 +85,8 @@ class EntryDetailRecord extends FileComponent
     private $addendaRecord;
 
     /**
+     * Build an Entry Detail record from an existing string.
+     *
      * @param string $input 94 character fixed-width ACH Record string
      * @return EntryDetailRecord
      * @throws ValidationException
@@ -223,68 +230,8 @@ class EntryDetailRecord extends FileComponent
     }
 
     /**
-     * EntryDetailRecord constructor.
+     * Returns true if an addenda record is included/expected, otherwise returns false.
      *
-     * @param array $fields         is an array of field key => value pairs as follows:
-     *                              [
-     *                                  // Required
-     *                                  TRANSACTION_CODE   =>
-     *                                  TRANSIT_ABA_NUMBER =>
-     *                                  DFI_ACCOUNT_NUMBER =>
-     *                                  AMOUNT             =>
-     *                                  INDIVIDUAL_NAME    =>
-     *                                  TRACE_NUMBER       =>
-     *                                  // Optional
-     *                                  ID_NUMBER         =>
-     *                                  DRAFT_INDICATOR   =>
-     *                                  ADDENDA_INDICATOR =>
-     *                              ]
-     * @param int   $sequence
-     * @param bool  $validate
-     * @throws ValidationException
-     */
-    public function __construct(array $fields, int $sequence, $validate = true)
-    {
-        if (!is_array($fields)) {
-            throw new \InvalidArgumentException('fields argument must be of type array.');
-        }
-        $this->entryDetailSequenceNumber = $sequence;
-
-        // Add any missing optional fields, but preserve user-provided values for those that exist
-        $fields = array_merge(self::OPTIONAL_FIELDS, $fields);
-
-        // Apply basic modifications where required, and provide defaults for missing values where possible
-        foreach ($fields as $k => $v) {
-            switch ($k) {
-                case self::TRANSIT_ABA_NUMBER:
-                    // Work with an integer for easy processing
-                    $v = (int) $v;
-
-                    $fields[self::TRANSIT_ABA_NUMBER] = (int) ($v / 10); // Dump the last digit
-                    $fields[self::CHECK_DIGIT]        = $v % 10;         // Extract the last digit
-                    break;
-                case self::AMOUNT:
-                    // We can't work with amounts that aren't numeric, so add special validation here to prevent
-                    // bcmul from silently converting bad inputs to zero
-                    if (!is_numeric($v) && $validate) {
-                        throw new ValidationException('Value: "' . ($v ?? 'null') . '" for "' . $k . '" must be numeric');
-                    }
-                    // Move decimal over and dump extra digits
-                    $fields[self::AMOUNT] = bcmul($v, '100', 0);
-                    break;
-                case self::TRACE_NUMBER:
-                    // Concatenate the provided immediate destination, and the left-padded sequence number
-                    $fields[self::TRACE_NUMBER] = $v . str_pad($sequence, 7, '0', STR_PAD_LEFT);
-                    break;
-                case self::ADDENDA_INDICATOR:
-                    $fields[self::ADDENDA_INDICATOR] = $v ?: self::DEFAULT_ADDENDA_INDICATOR;
-            }
-        }
-
-        parent::__construct($fields, $validate);
-    }
-
-    /**
      * @return bool
      */
     public function hasAddendaRecord(): bool
@@ -296,6 +243,8 @@ class EntryDetailRecord extends FileComponent
     }
 
     /**
+     * Returns the Addenda record, if one exists.
+     *
      * @return AddendaRecord
      */
     public function getAddendaRecord(): AddendaRecord
@@ -304,6 +253,8 @@ class EntryDetailRecord extends FileComponent
     }
 
     /**
+     * Set the Addenda record.
+     *
      * @param $v
      * @return EntryDetailRecord
      */
@@ -315,10 +266,82 @@ class EntryDetailRecord extends FileComponent
         return $this;
     }
 
+    /**
+     * Get the string representation of the Entry Detail record. If there is an attached Addenda record,
+     * the string will contain two lines.
+     * @return string
+     */
     public function toString()
     {
         $addendaString = $this->hasAddendaRecord() ? "\n{$this->addendaRecord->toString()}" : '';
 
         return parent::toString() . $addendaString;
+    }
+
+    /**
+     * EntryDetailRecord constructor.
+     *
+     * @param array $fields   is an array of field key => value pairs as follows:
+     *                        [
+     *                            // Required
+     *                            TRANSACTION_CODE   => Designates the type of transaction, use class constants
+     *                            TRANSIT_ABA_NUMBER => The nine digit transit/ABA number for the target account
+     *                            DFI_ACCOUNT_NUMBER => The (up to) 17 digit account number for the target account
+     *                            AMOUNT             => The amount to be transferred
+     *                            INDIVIDUAL_NAME    => The individual or business who owns the account
+     *                            TRACE_NUMBER       => Must be the ORIGINATING_DFI_ID from the Batch Header
+     *                            // Optional
+     *                            ID_NUMBER          => May be used to insert number for internal purposes
+     *                            DRAFT_INDICATOR    => Codes to enable special handling of the entry
+     *                            ADDENDA_INDICATOR  => 1 is addenda record is included, 0 if not
+     *                        ]
+     * @param int   $sequence
+     * @param bool  $validate
+     * @throws ValidationException
+     */
+    public function __construct(array $fields, $sequence, $validate = true)
+    {
+        if (!is_array($fields)) {
+            throw new \InvalidArgumentException('fields argument must be of type array.');
+        }
+        $this->entryDetailSequenceNumber = $sequence;
+
+        if ($validate) {
+            // Add any missing optional fields, but preserve user-provided values for those that exist
+            $fields = array_merge(self::OPTIONAL_FIELDS, $fields);
+            $fields = $this->getModifiedFields($fields, $sequence);
+        }
+
+        parent::__construct($fields, $validate);
+    }
+
+    /**
+     * @param $fields
+     * @param $sequence
+     * @return array
+     * @throws ValidationException
+     */
+    protected function getModifiedFields($fields, $sequence): array
+    {
+        // Extract the last digit from the transit number and use it as the check digit
+        $transitNumber = (int) $fields[self::TRANSIT_ABA_NUMBER];
+        $fields[self::TRANSIT_ABA_NUMBER] = (int) ($transitNumber / 10);
+        $fields[self::CHECK_DIGIT]        = $transitNumber % 10;
+
+        // We can't work with amounts that aren't numeric, so add special validation here to prevent
+        // bcmul from silently converting bad inputs to zero
+        if (!is_numeric($fields[self::AMOUNT])) {
+            throw new ValidationException('Value: "' . ($v ?? 'null') . '" for "' . $k . '" must be numeric');
+        }
+        // Move decimal over and dump extra digits
+        $fields[self::AMOUNT] = bcmul($fields[self::AMOUNT], '100', 0);
+
+        // Concatenate the provided immediate destination, and the left-padded sequence number
+        $fields[self::TRACE_NUMBER] = $fields[self::TRACE_NUMBER] . str_pad($sequence, 7, '0', STR_PAD_LEFT);
+
+        // Use the default addenda indicator if none was provided
+        $fields[self::ADDENDA_INDICATOR] = $fields[self::ADDENDA_INDICATOR] ?: self::DEFAULT_ADDENDA_INDICATOR;
+
+        return $fields;
     }
 }
