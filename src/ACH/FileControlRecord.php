@@ -9,6 +9,11 @@
 namespace RW\ACH;
 
 
+/**
+ * Class FileControlRecord
+ *
+ * @package RW\ACH
+ */
 class FileControlRecord extends FileComponent
 {
     /* FIXED VALUES */
@@ -18,18 +23,9 @@ class FileControlRecord extends FileComponent
     private const BLOCK_COUNT = 'BLOCK_COUNT';
 
     /**
-     * @param string $input
-     * @return FileControlRecord
-     * @throws ValidationException
-     */
-    public static function buildFromString($input): FileControlRecord
-    {
-        $buildData = self::getBuildDataFromInputString($input);
-
-        return new FileControlRecord($buildData, false);
-    }
-
-    /**
+     * FileControlRecord builder using the File Header record to ensure cross-referenced data is accurate. This is
+     * the recommended method of creating a File Control record when using generated data.
+     *
      * @param string $batchCount
      * @param string $blockCount
      * @param string $entryAndAddendaCount

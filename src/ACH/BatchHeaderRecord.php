@@ -11,6 +11,11 @@ namespace RW\ACH;
 
 use DateTime;
 
+/**
+ * Class BatchHeaderRecord
+ *
+ * @package RW\ACH
+ */
 class BatchHeaderRecord extends FileComponent
 {
     /* FIXED VALUES */
@@ -184,6 +189,8 @@ class BatchHeaderRecord extends FileComponent
     // endregion
 
     /**
+     * Build a Batch Header record from an existing string.
+     *
      * @param string $input
      * @return BatchHeaderRecord
      * @throws ValidationException
@@ -344,7 +351,7 @@ class BatchHeaderRecord extends FileComponent
      *                              COMPANY_ID                => 10 digits
      *                              STANDARD_ENTRY_CLASS_CODE => 3 characters representing the entry format
      *                              COMPANY_ENTRY_DESCRIPTION => Alphanumeric string of length > 1 and <= 10 describing the purpose of the entry to the receiver
-     *                              ORIGINATING_DFI_ID        => 8 digits representing where the file will be delivered for processing
+     *                              ORIGINATING_DFI_ID        => 8 digit routing number of the DFI originating entries in the batch
      *                              BATCH_NUMBER              => 7 digits identifying the sequential order of this batch
      *                              // Optional
      *                              ENTRY_DATE_OVERRIDE       => DateTime object (default: current date)
@@ -360,31 +367,35 @@ class BatchHeaderRecord extends FileComponent
             throw new \InvalidArgumentException('fields argument must be of type array.');
         }
 
-        // Add any missing optional fields, but preserve user-provided values for those that exist
-        $fields = array_merge(self::OPTIONAL_FIELDS, $fields);
-
-        // Apply basic modifications where required, and provide defaults for missing values where possible
-        foreach ($fields as $k => $v) {
-            switch ($k) {
-                case self::EFFECTIVE_ENTRY_DATE:
-                    // If an entry date was not provided, the override is null and the current date/time will be used
-                    $entryDate                          = $v ?: new DateTime();
-                    $fields[self::EFFECTIVE_ENTRY_DATE] = $entryDate->format('ymd');
-                    break;
-                case self::COMPANY_DESCRIPTIVE_DATE:
-                    // This is optional, so it should be passed in explicitly - the default null value will otherwise
-                    // be padded with spaces.
-
-                    if (is_object($v) && get_class($v) === DateTime::class) {
-                        /** @var DateTime $v */
-                        $fields[self::COMPANY_DESCRIPTIVE_DATE] = $v->format('ymd');
-                    }
-                    break;
-                case self::DISCRETIONARY_DATA:
-                    $fields[self::DISCRETIONARY_DATA] = $v ?: self::DEFAULT_DISCRETIONARY_DATA;
-            }
+        if ($validate) {
+            // Add any missing optional fields, but preserve user-provided values for those that exist
+            $fields = array_merge(self::OPTIONAL_FIELDS, $fields);
+            $fields = $this->getModifiedFields($fields);
         }
 
         parent::__construct($fields, $validate);
+    }
+
+    /**
+     * @param $fields
+     * @return mixed
+     */
+    protected function getModifiedFields($fields)
+    {
+        // If an entry date was not provided, the override is null and the current date/time will be used
+        $entryDate = $fields[self::EFFECTIVE_ENTRY_DATE] ?: new DateTime();
+        $fields[self::EFFECTIVE_ENTRY_DATE] = $entryDate->format('ymd');
+
+        // The default null value will be padded with spaces if no explicit value was provided
+        $descriptiveDate = $fields[self::COMPANY_DESCRIPTIVE_DATE];
+        if (is_object($descriptiveDate) && get_class($descriptiveDate) === DateTime::class) {
+            /** @var DateTime $v */
+            $fields[self::COMPANY_DESCRIPTIVE_DATE] = $descriptiveDate->format('ymd');
+        }
+
+        // Apply default value if none provided
+        $fields[self::DISCRETIONARY_DATA] = $fields[self::DISCRETIONARY_DATA] ?: self::DEFAULT_DISCRETIONARY_DATA;
+
+        return $fields;
     }
 }

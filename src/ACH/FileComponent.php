@@ -116,7 +116,6 @@ abstract class FileComponent
      *  $this->fieldSpecifications = [
      *      FIELD_NAME => [
      *          self::FIELD_INCLUSION => Mandatory, Required, or Optional (reserved for future use)
-     *          self::FORMAT          => Description of the expected format (informational)
      *          self::VALIDATOR       => array: [
      *              Validation type (self::VALIDATOR_REGEX or self::VALIDATOR_DATE_TIME)
      *              Validation string (regular expression or date-time format)
@@ -133,6 +132,42 @@ abstract class FileComponent
      * @return array
      */
     abstract protected static function getFieldSpecifications(): array;
+
+    /**
+     * Standard file components consist of a single 'block' (line), but this can be overwritten
+     * to account for special cases like addenda records within entry detail records.
+     *
+     * @return int
+     */
+    public function getBlockCount(): int
+    {
+        return 1;
+    }
+
+    public function getField($fieldName): string
+    {
+        if (!isset($this->fieldSpecifications[$fieldName])) {
+            throw new InvalidArgumentException($fieldName . ' does not exist in ' . static::class);
+        }
+
+        return $this->fieldSpecifications[$fieldName][self::CONTENT];
+    }
+
+    /**
+     * Get the string representation of the file component. There is no trailing newline applied,
+     * if concatenating multiple components the user must supply the appropriate line ending.
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        $record = '';
+        foreach ($this->fieldSpecifications as $field) {
+            $record .= $field[self::CONTENT];
+        }
+
+        return $record;
+    }
 
     /**
      * FileComponent constructor.
@@ -158,26 +193,6 @@ abstract class FileComponent
         foreach ($fields as $k => $v) {
             $this->setField($k, $v);
         }
-    }
-
-    /**
-     * Standard file components consist of a single 'block' (line), but this can be overwritten
-     * to account for special cases like addenda records within entry detail records.
-     *
-     * @return int
-     */
-    public function getBlockCount(): int
-    {
-        return 1;
-    }
-
-    public function getField($fieldName): string
-    {
-        if (!isset($this->fieldSpecifications[$fieldName])) {
-            throw new InvalidArgumentException($fieldName . ' does not exist in ' . static::class);
-        }
-
-        return $this->fieldSpecifications[$fieldName][self::CONTENT];
     }
 
     /**
@@ -239,21 +254,5 @@ abstract class FileComponent
         $this->fieldSpecifications[$k][self::CONTENT] = mb_strtoupper($v);
 
         return $this;
-    }
-
-    /**
-     * Convert the file component to string form - note that no special line ending characters are applied,
-     * if concatenating multiple components the user must supply the appropriate line ending.
-     *
-     * @return string
-     */
-    public function toString()
-    {
-        $record = '';
-        foreach ($this->fieldSpecifications as $field) {
-            $record .= $field[self::CONTENT];
-        }
-
-        return $record;
     }
 }

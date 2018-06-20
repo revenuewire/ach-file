@@ -50,6 +50,30 @@ class File extends ComponentCollection
     }
 
     /**
+     * Set the File Control record.
+     *
+     * @param FileControlRecord $v
+     * @return File
+     */
+    public function setControlRecord($v): File
+    {
+        $this->controlRecord = $v;
+
+        return $this;
+    }
+
+    /**
+     * Get the string representation of the ACH File. Includes a trailing newline character.
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        // Add a new line to the end of the file.
+        return parent::toString() . "\n";
+    }
+
+    /**
      * @return FileComponent
      * @throws ValidationException
      */
@@ -71,22 +95,5 @@ class File extends ComponentCollection
         }
 
         return $this->controlRecord;
-    }
-
-    /**
-     * @param FileControlRecord $v
-     * @return File
-     */
-    public function setControlRecord($v): File
-    {
-        $this->controlRecord = $v;
-
-        return $this;
-    }
-
-    public function toString()
-    {
-        // Add a new line to the end of the file.
-        return parent::toString() . "\n";
     }
 }

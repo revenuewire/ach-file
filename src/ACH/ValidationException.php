@@ -9,4 +9,9 @@
 namespace RW\ACH;
 
 
+/**
+ * Class ValidationException
+ *
+ * @package RW\ACH
+ */
 class ValidationException extends \Exception {}

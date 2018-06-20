@@ -1,5 +1,5 @@
 {
-    "name": "revenuewire/ach-payment-file",
+    "name": "revenuewire/ach-file",
     "type": "library",
     "description": "Create and read ACH Payment files",
     "homepage": "https://github.com/revenuewire/ach-payment-file",
