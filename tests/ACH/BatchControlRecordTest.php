@@ -16,7 +16,7 @@ use RW\ACH\EntryDetailRecord;
 
 class BatchControlRecordTest extends TestCase
 {
-    private const VALID_TRANSIT_ABA_NUMBER = '123456789';
+    private const VALID_TRANSIT_ABA_NUMBER = '113000023';
     private const VALID_DFI_ACCOUNT_NUMBER = '01234-567-891011';
     private const VALID_AMOUNT             = '11.00';
     private const VALID_INDIVIDUAL_NAME    = 'A Valid Company Name';
@@ -80,7 +80,7 @@ class BatchControlRecordTest extends TestCase
                         ], 1),
                     ],
                 ],
-                '820000000100123456780000000000000000000011000123456789                         876543210000001',
+                '820000000100113000020000000000000000000011000123456789                         876543210000001',
             ],
             [
                 // Multiple Entry Detail Records
@@ -115,7 +115,7 @@ class BatchControlRecordTest extends TestCase
                         ], 2),
                     ],
                 ],
-                '820000000200246913560000000000000000000022000123456789                         876543210000001',
+                '820000000200226000040000000000000000000022000123456789                         876543210000001',
             ],
         ];
     }

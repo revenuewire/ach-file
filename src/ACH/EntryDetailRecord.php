@@ -7,6 +7,7 @@
  */
 
 namespace RW\ACH;
+use InvalidArgumentException;
 
 
 /**
@@ -48,19 +49,39 @@ class EntryDetailRecord extends FileComponent
     ];
 
     /* TRANSACTION CODES */
-    public const CHECKING_CREDIT_DEPOSIT     = '22';
-    public const CHECKING_CREDIT_PRE_NOTE    = '23';
-    public const CHECKING_CREDIT_ZERO_DOLLAR = '24';
-    public const SAVINGS_CREDIT_DEPOSIT      = '32';
-    public const SAVINGS_CREDIT_PRE_NOTE     = '33';
-    public const SAVINGS_CREDIT_ZERO_DOLLAR  = '34';
+    public const CHECKING_CREDIT_RETURN_OR_NOC = '21';
+    public const CHECKING_CREDIT_DEPOSIT       = '22';
+    public const CHECKING_CREDIT_PRE_NOTE      = '23';
+    public const CHECKING_CREDIT_ZERO_DOLLAR   = '24';
+    public const CHECKING_DEBIT_RETURN_OR_NOC  = '26';
+    public const CHECKING_DEBIT_PAYMENT        = '27';
+    public const CHECKING_DEBIT_PRE_NOTE       = '28';
+    public const CHECKING_DEBIT_ZERO_DOLLAR    = '29';
 
-    public const CHECKING_DEBIT_PAYMENT     = '27';
-    public const CHECKING_DEBIT_PRE_NOTE    = '28';
-    public const CHECKING_DEBIT_ZERO_DOLLAR = '29';
-    public const SAVINGS_DEBIT_PAYMENT      = '37';
-    public const SAVINGS_DEBIT_PRE_NOTE     = '38';
-    public const SAVINGS_DEBIT_ZERO_DOLLAR  = '39';
+    public const SAVINGS_CREDIT_RETURN_OR_NOC = '31';
+    public const SAVINGS_CREDIT_DEPOSIT       = '32';
+    public const SAVINGS_CREDIT_PRE_NOTE      = '33';
+    public const SAVINGS_CREDIT_ZERO_DOLLAR   = '34';
+    public const SAVINGS_DEBIT_RETURN_OR_NOC  = '36';
+    public const SAVINGS_DEBIT_PAYMENT        = '37';
+    public const SAVINGS_DEBIT_PRE_NOTE       = '38';
+    public const SAVINGS_DEBIT_ZERO_DOLLAR    = '39';
+
+    public const GENERAL_LEDGER_CREDIT_RETURN_OR_NOC = '41';
+    public const GENERAL_LEDGER_CREDIT               = '42';
+    public const GENERAL_LEDGER_CREDIT_PRENOTE       = '43';
+    public const GENERAL_LEDGER_ZERO_DOLLAR_CREDIT   = '44';  // With remittance data (SEC code of CCD and CTX only)
+    public const GENERAL_LEDGER_DEBIT_RETURN_OR_NOC  = '46';
+    public const GENERAL_LEDGER_DEBIT                = '47';
+    public const GENERAL_LEDGER_DEBIT_PRENOTE        = '48';
+    public const GENERAL_LEDGER_ZERO_DOLLAR_DEBIT    = '49';  // With remittance data (SEC code of CCD and CTX only)
+
+    public const LOAN_ACCOUNT_CREDIT_RETURN_OR_NOC = '51';
+    public const LOAN_ACCOUNT_CREDIT               = '52';
+    public const LOAN_ACCOUNT_CREDIT_PRENOTE       = '53';
+    public const LOAN_ACCOUNT_ZERO_DOLLAR_CREDIT   = '54';  // With remittance data (SEC code of CCD and CTX only)
+    public const LOAN_ACCOUNT_DEBIT                = '55';  // Reversal only
+    public const LOAN_ACCOUNT_DEBIT_RETURN_OR_NOC  = '56';
 
     public const CREDIT_TRANSACTION_CODES = [
         self::CHECKING_CREDIT_DEPOSIT,
@@ -79,6 +100,8 @@ class EntryDetailRecord extends FileComponent
         self::SAVINGS_DEBIT_ZERO_DOLLAR,
     ];
 
+    private const CHECK_DIGIT_WEIGHTS = [3, 7, 1, 3, 7, 1, 3, 7];
+
     /** @var int */
     private $entryDetailSequenceNumber;
     /** @var AddendaRecord */
@@ -93,16 +116,10 @@ class EntryDetailRecord extends FileComponent
      */
     public static function buildFromString($input): EntryDetailRecord
     {
-        $buildData                           = self::getBuildDataFromInputString($input);
-        $buildData[self::TRANSIT_ABA_NUMBER] = $buildData[self::TRANSIT_ABA_NUMBER] . $buildData[self::CHECK_DIGIT];
-        $buildData[self::TRACE_NUMBER]       = substr($buildData[self::TRACE_NUMBER], 0, 8);
-
-        // Convert amount to float format
-        $buildData[self::AMOUNT] = ltrim($buildData[self::AMOUNT], '0');
-        $buildData[self::AMOUNT] = preg_replace('/(\d{2})$/', '.$1', $buildData[self::AMOUNT]);
+        $buildData = self::getBuildDataFromInputString($input);
 
         // Extract the sequence number from the last 7 digits
-        $sequenceNumber = (int) substr($input, (94 - 7), 7);
+        $sequenceNumber = (int) substr($input, (94 - 7));
 
         return new EntryDetailRecord($buildData, $sequenceNumber, false);
     }
@@ -149,7 +166,7 @@ class EntryDetailRecord extends FileComponent
             ],
             self::TRANSIT_ABA_NUMBER => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{8}$/'],
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{1,8}$/'],
                 self::LENGTH          => 8,
                 self::POSITION_START  => 4,
                 self::POSITION_END    => 11,
@@ -203,7 +220,7 @@ class EntryDetailRecord extends FileComponent
             ],
             self::DRAFT_INDICATOR    => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_OPTIONAL,
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^((1[\?\*])|  )?$/'],
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[a-zA-Z0-9 *?]{0,2}$/'],
                 self::LENGTH          => 2,
                 self::POSITION_START  => 77,
                 self::POSITION_END    => 78,
@@ -302,8 +319,15 @@ class EntryDetailRecord extends FileComponent
     public function __construct(array $fields, $sequence, $validate = true)
     {
         if (!is_array($fields)) {
-            throw new \InvalidArgumentException('fields argument must be of type array.');
+            throw new InvalidArgumentException('fields argument must be of type array.');
         }
+
+        // Check for required fields
+        $missing_fields = array_diff(self::REQUIRED_FIELDS, array_keys($fields));
+        if ($missing_fields) {
+            throw new InvalidArgumentException('Cannot create ' . self::class . ' without all required fields, missing: ' . implode(', ', $missing_fields));
+        }
+
         $this->entryDetailSequenceNumber = $sequence;
 
         if ($validate) {
@@ -324,14 +348,21 @@ class EntryDetailRecord extends FileComponent
     protected function getModifiedFields($fields, $sequence): array
     {
         // Extract the last digit from the transit number and use it as the check digit
-        $transitNumber = (int) $fields[self::TRANSIT_ABA_NUMBER];
-        $fields[self::TRANSIT_ABA_NUMBER] = (int) ($transitNumber / 10);
-        $fields[self::CHECK_DIGIT]        = $transitNumber % 10;
+        if (!is_numeric($fields[self::TRANSIT_ABA_NUMBER]) || strlen($fields[self::TRANSIT_ABA_NUMBER]) !== 9) {
+            throw new ValidationException("Invalid transit number {$fields[self::TRANSIT_ABA_NUMBER]}, non numeric or incorrect length.");
+        }
+        // Can't use math because conversion to an integer truncates leading zeros
+        $transitNumber = $fields[self::TRANSIT_ABA_NUMBER];
+        $fields[self::TRANSIT_ABA_NUMBER] = mb_substr($transitNumber, 0, 8);
+        $fields[self::CHECK_DIGIT]        = mb_substr($transitNumber, 8);
+        if (!$this->isValidCheckDigit($fields[self::TRANSIT_ABA_NUMBER], $fields[self::CHECK_DIGIT])) {
+            throw new ValidationException("Invalid transit number {$transitNumber}, check digit does not match.");
+        }
 
         // We can't work with amounts that aren't numeric, so add special validation here to prevent
         // bcmul from silently converting bad inputs to zero
         if (!is_numeric($fields[self::AMOUNT])) {
-            throw new ValidationException('Value: "' . ($v ?? 'null') . '" for "' . $k . '" must be numeric');
+            throw new ValidationException('Value: "' . ($fields[self::AMOUNT] ?? 'null') . '" for "' . self::AMOUNT . '" must be numeric');
         }
         // Move decimal over and dump extra digits
         $fields[self::AMOUNT] = bcmul($fields[self::AMOUNT], '100', 0);
@@ -343,5 +374,21 @@ class EntryDetailRecord extends FileComponent
         $fields[self::ADDENDA_INDICATOR] = $fields[self::ADDENDA_INDICATOR] ?: self::DEFAULT_ADDENDA_INDICATOR;
 
         return $fields;
+    }
+
+    private function isValidCheckDigit($transitNumber, $checkDigit)
+    {
+        // Not concerned about truncating leading zeros for this process
+        $transitNumber = (int) $transitNumber;
+        $transitSum = 0;
+        foreach (array_reverse(self::CHECK_DIGIT_WEIGHTS) as $weight) {
+            $digit         = $transitNumber % 10;
+            $transitSum    += $digit * $weight;
+            $transitNumber = (int) ($transitNumber / 10);
+        }
+
+        $calculatedCheckDigit = (10 - ($transitSum % 10)) % 10; // Final mod lets 10 - 0 = 0
+
+        return $checkDigit == $calculatedCheckDigit;
     }
 }

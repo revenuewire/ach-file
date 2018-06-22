@@ -16,7 +16,7 @@ use RW\ACH\ValidationException;
 
 class EntryDetailRecordTest extends TestCase
 {
-    private const VALID_TRANSIT_ABA_NUMBER = '123456789';
+    private const VALID_TRANSIT_ABA_NUMBER = '113000023';
     private const VALID_DFI_ACCOUNT_NUMBER = '01234-567-891011';
     private const VALID_AMOUNT             = '11.00';
     private const VALID_INDIVIDUAL_NAME    = 'A Valid Company Name';
@@ -145,10 +145,22 @@ class EntryDetailRecordTest extends TestCase
                 ValidationException::class,
             ],
             [
-                // Invalid Transit ABA Number
+                // Invalid Transit ABA Number (letters)
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => 'A2345678',
+                    EntryDetailRecord::DFI_ACCOUNT_NUMBER => self::VALID_DFI_ACCOUNT_NUMBER,
+                    EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
+                    EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
+                    EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
+                ],
+                ValidationException::class,
+            ],
+            [
+                // Invalid Transit ABA Number (bad check digit)
+                [
+                    EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
+                    EntryDetailRecord::TRANSIT_ABA_NUMBER => '123456789',
                     EntryDetailRecord::DFI_ACCOUNT_NUMBER => self::VALID_DFI_ACCOUNT_NUMBER,
                     EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
                     EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
@@ -394,7 +406,7 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::DFI_ACCOUNT_NUMBER => self::VALID_DFI_ACCOUNT_NUMBER,
                     EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
                     EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
-                    EntryDetailRecord::DRAFT_INDICATOR    => '11',
+                    EntryDetailRecord::DRAFT_INDICATOR    => '--',
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
                 ValidationException::class,
@@ -408,19 +420,6 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
                     EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
                     EntryDetailRecord::DRAFT_INDICATOR    => '   ',
-                    EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
-                ],
-                ValidationException::class,
-            ],
-            [
-                // Short Bank Draft Indicator
-                [
-                    EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
-                    EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
-                    EntryDetailRecord::DFI_ACCOUNT_NUMBER => self::VALID_DFI_ACCOUNT_NUMBER,
-                    EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
-                    EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
-                    EntryDetailRecord::DRAFT_INDICATOR    => '1',
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
                 ValidationException::class,
@@ -532,7 +531,7 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
-                '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    0123456780000001',
+                '62211300002301234-567-891011 0000001100               A VALID COMPANY NAME    0123456780000001',
             ],
             [
                 // Custom Id Number
@@ -545,7 +544,7 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
-                '62212345678901234-567-891011 0000001100AF34B52        A VALID COMPANY NAME    0123456780000001',
+                '62211300002301234-567-891011 0000001100AF34B52        A VALID COMPANY NAME    0123456780000001',
             ],
             [
                 // Custom Draft Indicator
@@ -558,7 +557,7 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::DRAFT_INDICATOR    => self::VALID_DRAFT_INDICATOR,
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
-                '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME  1*0123456780000001',
+                '62211300002301234-567-891011 0000001100               A VALID COMPANY NAME  1*0123456780000001',
             ],
             [
                 // Custom Addenda Indicator
@@ -571,7 +570,19 @@ class EntryDetailRecordTest extends TestCase
                     EntryDetailRecord::ADDENDA_INDICATOR  => self::VALID_ADDENDA_INDICATOR,
                     EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
                 ],
-                '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    1123456780000001',
+                '62211300002301234-567-891011 0000001100               A VALID COMPANY NAME    1123456780000001',
+            ],
+            [
+                // Transit Number With Leading Zero
+                [
+                    EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
+                    EntryDetailRecord::TRANSIT_ABA_NUMBER => '054000030',
+                    EntryDetailRecord::DFI_ACCOUNT_NUMBER => self::VALID_DFI_ACCOUNT_NUMBER,
+                    EntryDetailRecord::AMOUNT             => self::VALID_AMOUNT,
+                    EntryDetailRecord::INDIVIDUAL_NAME    => self::VALID_INDIVIDUAL_NAME,
+                    EntryDetailRecord::TRACE_NUMBER       => self::VALID_TRACE_NUMBER,
+                ],
+                '62205400003001234-567-891011 0000001100               A VALID COMPANY NAME    0123456780000001',
             ],
         ];
     }
