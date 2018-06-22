@@ -42,19 +42,19 @@ class FileControlRecordTest extends TestCase
         ];
         $validEntryDetailData1 = [
             EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::SAVINGS_CREDIT_DEPOSIT,
-            EntryDetailRecord::TRANSIT_ABA_NUMBER => '123456789',
+            EntryDetailRecord::TRANSIT_ABA_NUMBER => '113000023',
             EntryDetailRecord::DFI_ACCOUNT_NUMBER => '01234567891011',
             EntryDetailRecord::AMOUNT             => '11.00',
             EntryDetailRecord::INDIVIDUAL_NAME    => 'A Valid Company Name',
-            EntryDetailRecord::TRACE_NUMBER       => '12345678',
+            EntryDetailRecord::TRACE_NUMBER       => '87654321',
         ];
         $validEntryDetailData2 = [
             EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::SAVINGS_DEBIT_PAYMENT,
-            EntryDetailRecord::TRANSIT_ABA_NUMBER => '123456789',
+            EntryDetailRecord::TRANSIT_ABA_NUMBER => '113000023',
             EntryDetailRecord::DFI_ACCOUNT_NUMBER => '01234567891011',
             EntryDetailRecord::AMOUNT             => '12.00',
             EntryDetailRecord::INDIVIDUAL_NAME    => 'A Valid Company Name',
-            EntryDetailRecord::TRACE_NUMBER       => '12345678',
+            EntryDetailRecord::TRACE_NUMBER       => '87654321',
         ];
 
         $batches = [];
@@ -76,7 +76,7 @@ class FileControlRecordTest extends TestCase
             ],
             [
                 [$batches[0]],
-                '9000001000006000000020024691356000000001200000000001100                                       ',
+                '9000001000006000000020022600004000000001200000000001100                                       ',
             ],
             [
                 [
@@ -84,7 +84,7 @@ class FileControlRecordTest extends TestCase
                     $batches[1],
                     $batches[2],
                 ],
-                '9000003000014000000060074074068000000003600000000003300                                       ',
+                '9000003000014000000060067800012000000003600000000003300                                       ',
             ],
         ];
     }

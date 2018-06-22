@@ -10,6 +10,7 @@ namespace RW\ACH;
 
 
 use DateTime;
+use InvalidArgumentException;
 
 /**
  * Class FileHeaderRecord
@@ -130,7 +131,7 @@ class FileHeaderRecord extends FileComponent
             ],
             self::FILE_ID_MODIFIER      => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_MANDATORY,
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^([A-Z]|[0-9])$/'],
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[A-Z]$/'],
                 self::LENGTH          => 1,
                 self::POSITION_START  => 34,
                 self::POSITION_END    => 34,
@@ -193,18 +194,18 @@ class FileHeaderRecord extends FileComponent
     /**
      * FileHeaderRecord constructor.
      *
-     * @param array $fields is an array of field key => value pairs as follows:
-     *                          [
-     *                              // Required
-     *                              IMMEDIATE_DESTINATION => The ID number of the destination bank
-     *                              IMMEDIATE_ORIGIN      => Ten digit ID number for your company
-     *                              DESTINATION_NAME      => The name of the destination bank
-     *                              ORIGIN_NAME           => Your company name
-     *                              // Optional
-     *                              FILE_DATE             => DateTime object, default: new DateTime('now')
-     *                              FILE_ID_MODIFIER      => Code to distinguish multiple input files per day (start with 'A' or '0')
-     *                              REFERENCE_CODE        => Identify the file for your internal use
-     *                          ]
+     * @param array $fields   is an array of field key => value pairs as follows:
+     *                        [
+     *                            // Required
+     *                            IMMEDIATE_DESTINATION => The ID number of the destination bank
+     *                            IMMEDIATE_ORIGIN      => Ten digit ID number for your company
+     *                            DESTINATION_NAME      => The name of the destination bank
+     *                            ORIGIN_NAME           => Your company name
+     *                            // Optional
+     *                            FILE_DATE             => DateTime object, default: new DateTime('now')
+     *                            FILE_ID_MODIFIER      => Code to distinguish multiple input files per day ('A', 'B', ...)
+     *                            REFERENCE_CODE        => Identify the file for your internal use
+     *                        ]
      * @param bool  $validate
      * @throws ValidationException
      */
@@ -212,6 +213,12 @@ class FileHeaderRecord extends FileComponent
     {
         if (!is_array($fields)) {
             throw new \InvalidArgumentException('fields argument must be of type array.');
+        }
+
+        // Check for required fields
+        $missing_fields = array_diff(self::REQUIRED_FIELDS, array_keys($fields));
+        if ($missing_fields) {
+            throw new InvalidArgumentException('Cannot create ' . self::class . ' without all required fields, missing: ' . implode(', ', $missing_fields));
         }
 
         // If validating, add any missing optional fields (but preserve user-provided values for those that exist)

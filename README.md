@@ -6,7 +6,7 @@ a return file provided by the ODFI.
 * PHP 7
 * PHPUnit 7.1 for unit testing
 
-## Usage
+## Usage (Code Examples)
 #### Creating an ACH File From Generated Data
 ```php
 // The code below will generate an ACH File object that contains two batches
@@ -14,6 +14,7 @@ a return file provided by the ODFI.
 // two Entry Detail Records.
 
 $companyID = '0123456789';
+$originatingDFIID = '987654321';
 
 // Create a File Header record to use when creating a file
 $achFileHeaderRecord = new \RW\ACH\FileHeaderRecord([
@@ -36,7 +37,7 @@ $creditBatchHeader = new \RW\ACH\BatchHeaderRecord([
     \RW\ACH\BatchHeaderRecord::COMPANY_ID                => $companyID,
     \RW\ACH\BatchHeaderRecord::STANDARD_ENTRY_CLASS_CODE => \RW\ACH\BatchHeaderRecord::SEC_PPD,
     \RW\ACH\BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => 'Payroll',      // Transaction type description
-    \RW\ACH\BatchHeaderRecord::ORIGINATING_DFI_ID        => '12345678',
+    \RW\ACH\BatchHeaderRecord::ORIGINATING_DFI_ID        => $originatingDFIID,
     \RW\ACH\BatchHeaderRecord::BATCH_NUMBER              => '1',            // Sequential
     // Optional
     \RW\ACH\BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new DateTime('2018-06-20 19:18:17'),
@@ -50,7 +51,7 @@ $debitBatchHeader = new \RW\ACH\BatchHeaderRecord([
     \RW\ACH\BatchHeaderRecord::COMPANY_ID                => $companyID,
     \RW\ACH\BatchHeaderRecord::STANDARD_ENTRY_CLASS_CODE => \RW\ACH\BatchHeaderRecord::SEC_PPD,
     \RW\ACH\BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => 'Payroll',      // Transaction type description
-    \RW\ACH\BatchHeaderRecord::ORIGINATING_DFI_ID        => '12345678',
+    \RW\ACH\BatchHeaderRecord::ORIGINATING_DFI_ID        => $originatingDFIID,
     \RW\ACH\BatchHeaderRecord::BATCH_NUMBER              => '2',            // Sequential
     // Optional
     \RW\ACH\BatchHeaderRecord::EFFECTIVE_ENTRY_DATE      => new DateTime('2018-06-20 19:18:17'),
@@ -66,7 +67,7 @@ $creditEntryDetailOne = new \RW\ACH\EntryDetailRecord([
     \RW\ACH\EntryDetailRecord::DFI_ACCOUNT_NUMBER => '0123456789',      // Customer's bank account number
     \RW\ACH\EntryDetailRecord::AMOUNT             => '25.55',           // Decimal format
     \RW\ACH\EntryDetailRecord::INDIVIDUAL_NAME    => 'Customer Name',   // Max 22 characters
-    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => '12345678',        // ORIGINATING_DFI_ID from batch header
+    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => $originatingDFIID,
     // Optional
     \RW\ACH\EntryDetailRecord::ID_NUMBER          => '9876543210',      // Customer's internal account number
     \RW\ACH\EntryDetailRecord::DRAFT_INDICATOR    => '  ',
@@ -79,7 +80,7 @@ $creditEntryDetailTwo = new \RW\ACH\EntryDetailRecord([
     \RW\ACH\EntryDetailRecord::DFI_ACCOUNT_NUMBER => '0123456789',
     \RW\ACH\EntryDetailRecord::AMOUNT             => '32.45',
     \RW\ACH\EntryDetailRecord::INDIVIDUAL_NAME    => 'Another Customer',
-    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => '12345678',
+    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => $originatingDFIID,
     // Optional
     \RW\ACH\EntryDetailRecord::ID_NUMBER          => '9876543210',
     \RW\ACH\EntryDetailRecord::DRAFT_INDICATOR    => '  ',
@@ -92,7 +93,7 @@ $debitEntryDetailOne = new \RW\ACH\EntryDetailRecord([
     \RW\ACH\EntryDetailRecord::DFI_ACCOUNT_NUMBER => '0123456789',
     \RW\ACH\EntryDetailRecord::AMOUNT             => '11.00',
     \RW\ACH\EntryDetailRecord::INDIVIDUAL_NAME    => 'Yet Another Customer',
-    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => '12345678',
+    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => $originatingDFIID,
     // Optional
     \RW\ACH\EntryDetailRecord::ID_NUMBER          => '9876543210',
     \RW\ACH\EntryDetailRecord::DRAFT_INDICATOR    => '  ',
@@ -105,7 +106,7 @@ $debitEntryDetailTwo = new \RW\ACH\EntryDetailRecord([
     \RW\ACH\EntryDetailRecord::DFI_ACCOUNT_NUMBER => '0123456789',
     \RW\ACH\EntryDetailRecord::AMOUNT             => '5.64',
     \RW\ACH\EntryDetailRecord::INDIVIDUAL_NAME    => 'One More Customer',
-    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => '12345678',
+    \RW\ACH\EntryDetailRecord::TRACE_NUMBER       => $originatingDFIID,
     // Optional
     \RW\ACH\EntryDetailRecord::ID_NUMBER          => '9876543210',
     \RW\ACH\EntryDetailRecord::DRAFT_INDICATOR    => '  ',
@@ -127,7 +128,7 @@ $achPaymentFile->addComponent($batchOne)
     ->close();
 ```
 
-#### Example of Uploading an ACH File Object to a Destination SFTP Server
+#### Uploading an ACH File Object to a Destination SFTP Server
 ```php
 // This example uses the php ssh2 library to manage the sftp connection
 
@@ -149,7 +150,57 @@ fwrite($destination, $achPaymentFile->toString());
 fclose($destination);
 ```
 
-#### Example of Creating an ACH File Object Using a Provided Return File
+#### Downloading ACH Files From a Destination SFTP Server
+```php
+// This example uses the php ssh2 library to manage the connection
+// Set up transmission details
+
+$host = 'url.to.destination.com';
+$port = 22;
+$userName = 'userName';
+$publicKey = '/path/to/public/key.pub';
+$privateKey = '/path/to/private/key';
+$outboundDirectory = '/path/to/outbound/directory/'; // leading and trailing slashes
+
+// Establish connection
+if (($connection = ssh2_connect($host, $port)) === false) {
+    exit ('Failed to establish connection');
+}
+if (ssh2_auth_pubkey_file($connection, $userName, $publicKey, $privateKey) === false) {
+    exit ('Failed to authorize secure connection');
+}
+$sftp = ssh2_sftp($connection);
+
+// Get a list of available files for download
+$files = array();
+$dirHandle = opendir('ssh2.sftp://' . intval($sftp) . $outputDirectory);
+while (($file = readdir($dirHandle))) {
+    if ($file != '.' && $file != '..') {
+        $files[] = $file;
+    }
+}
+
+// Download and parse the files
+foreach ($files as $k => $remoteFileName) {
+    // Prep the local file name
+    $fileStats = ssh2_sftp_stat($sftp, $outputDirectory . $remoteFileName);
+    $fileDateString = (new DateTime())->setTimestamp($fileStats['mtime'])->format('Ymd-His');
+    $localFileName = "ACH_RETURN_FILE_{$fileDateString}_{$remoteFileName}";
+
+    // Open the file for processing
+    if (!($handle = fopen('ssh2.sftp://' . intval($sftp) . $outputDirectory . $remoteFileName, 'r'))) {
+        echo "Failed to open remote file {$remoteFileName} in {$outputDirectory}";
+        continue;
+    }
+
+    /* Parse the file */
+
+    // Clean up
+    fclose($handle)
+}
+```
+
+#### Creating an ACH File Object Using a Provided Return File
 ```php
 $handle = fopen('/path/to/return/file.txt', 'r+');
 $achReturnFile = \RW\ACH\File::buildFromResource($handle);
@@ -162,21 +213,19 @@ $exampleData = $fileHeader->getField(\RW\ACH\FileHeader::EXAMPLE_FIELD_NAME);
 foreach ($achReturnFile->getCollection() as $batch) {
     // Get data about batches from the header
     $batchHeader = $batch->getHeaderRecord();
-    $serviceClassCode = $batchHeader->getField(\RW\ACH\BatchHeader::SERVICE_CLASS_CODE);
+    $exampleData = $batchHeader->getField(\RW\ACH\BatchHeader::EXAMPLE_FIELD_NAME);
 
     foreach ($batch->getCollection() as $entryDetailRecord) {
         // Process the entry detail record in some way
-        switch ($serviceClassCode) {
-            // The entry detail record also contains the addenda record, which
-            // can be accessed with $entryDetailRecord->getAddendaRecord()
-            case \RW\ACH\BatchHeader::SEC_COR:
-                processCorrectionEntry($entryDetailRecord);
+		switch (get_class($entryDetailRecord->getAddendaRecord())) {
+            case \RW\ACH\NoticeOfChangeAddenda::class:
+                // handleNoticeOfChange($entryDetailRecord);
                 break;
-            case \RW\ACH\BatchHeader::SEC_PPD:
-                processReturnEntry($entryDetailRecord);
+            case \RW\ACH\ReturnEntryAddenda::class:
+                // handleReturnEntry($entryDetailRecord);
                 break;
             default:
-                echo "$serviceClassCode is an unhandled service class";
+                // Error
         }
     }
 }

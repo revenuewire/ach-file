@@ -10,6 +10,7 @@ namespace RW\ACH;
 
 
 use DateTime;
+use InvalidArgumentException;
 
 /**
  * Class BatchHeaderRecord
@@ -189,22 +190,6 @@ class BatchHeaderRecord extends FileComponent
     // endregion
 
     /**
-     * Build a Batch Header record from an existing string.
-     *
-     * @param string $input
-     * @return BatchHeaderRecord
-     * @throws ValidationException
-     */
-    public static function buildFromString($input): BatchHeaderRecord
-    {
-        $buildData                                 = self::getBuildDataFromInputString($input);
-        $buildData[self::COMPANY_DESCRIPTIVE_DATE] = DateTime::createFromFormat('ymd', $buildData[self::COMPANY_DESCRIPTIVE_DATE]);
-        $buildData[self::EFFECTIVE_ENTRY_DATE]     = DateTime::createFromFormat('ymd', $buildData[self::EFFECTIVE_ENTRY_DATE]);
-
-        return new BatchHeaderRecord($buildData, false);
-    }
-
-    /**
      * Generate the field specifications for each field in the file component.
      * Format is an array of arrays as follows:
      *  $this->fieldSpecifications = [
@@ -367,6 +352,12 @@ class BatchHeaderRecord extends FileComponent
             throw new \InvalidArgumentException('fields argument must be of type array.');
         }
 
+        // Check for required fields
+        $missing_fields = array_diff(self::REQUIRED_FIELDS, array_keys($fields));
+        if ($missing_fields) {
+            throw new InvalidArgumentException('Cannot create ' . self::class . ' without all required fields, missing: ' . implode(', ', $missing_fields));
+        }
+
         if ($validate) {
             // Add any missing optional fields, but preserve user-provided values for those that exist
             $fields = array_merge(self::OPTIONAL_FIELDS, $fields);
@@ -389,7 +380,7 @@ class BatchHeaderRecord extends FileComponent
         // The default null value will be padded with spaces if no explicit value was provided
         $descriptiveDate = $fields[self::COMPANY_DESCRIPTIVE_DATE];
         if (is_object($descriptiveDate) && get_class($descriptiveDate) === DateTime::class) {
-            /** @var DateTime $v */
+            /** @var DateTime $descriptiveDate */
             $fields[self::COMPANY_DESCRIPTIVE_DATE] = $descriptiveDate->format('ymd');
         }
 

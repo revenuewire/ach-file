@@ -43,9 +43,9 @@ abstract class FileComponent
     protected const VALIDATOR_ARRAY    = 3;
 
     /* SERVICE CLASS CODES */
-    public const DEBIT_SERVICE_CLASS  = '225';
     public const MIXED_SERVICE_CLASS  = '200';
     public const CREDIT_SERVICE_CLASS = '220';
+    public const DEBIT_SERVICE_CLASS  = '225';
 
     /* REQUIREMENT TYPES */
     // Information necessary to ensure the proper routing and/or posting of an ACH entry
@@ -178,8 +178,9 @@ abstract class FileComponent
      */
     protected function __construct($fields, $validate)
     {
-        $this->validate = $validate;
-        // Check for required fields
+        // Check for required fields, this should be done in the child class in most cases, but we will do it again
+        // here to make sure it happens for cases when the child class doesn't override the constructor, or doesn't
+        // check and modify any fields
         $missing_fields = array_diff(static::REQUIRED_FIELDS, array_keys($fields));
         if ($missing_fields) {
             throw new InvalidArgumentException('Cannot create ' . static::class . ' without all required fields, missing: ' . implode(', ', $missing_fields));
@@ -191,7 +192,7 @@ abstract class FileComponent
         $fields = array_intersect_key($fields, $this->fieldSpecifications);
 
         foreach ($fields as $k => $v) {
-            $this->setField($k, $v);
+            $this->setField($k, $v, $validate);
         }
     }
 
@@ -200,10 +201,11 @@ abstract class FileComponent
      *
      * @param $k
      * @param $v
+     * @param bool $validate
      * @return FileComponent
      * @throws ValidationException
      */
-    protected function setField($k, $v): FileComponent
+    protected function setField($k, $v, $validate): FileComponent
     {
         // Always work with strings
         $v = (string) $v;
@@ -213,7 +215,7 @@ abstract class FileComponent
             throw new \InvalidArgumentException('Key "' . $k . '" does not match a valid field.');
         }
 
-        if ($this->validate) {
+        if ($validate) {
             // Validate value unless validation is overridden (e.g. for when rebuilding object from string)
             switch ($this->fieldSpecifications[$k][self::VALIDATOR][0]) {
                 case self::VALIDATOR_REGEX:
