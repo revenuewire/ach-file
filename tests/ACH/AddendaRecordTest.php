@@ -11,39 +11,66 @@ namespace RW\Tests\ACH;
 
 use PHPUnit\Framework\TestCase;
 use RW\ACH\AddendaRecord;
+use RW\ACH\NoticeOfChangeAddenda;
+use RW\ACH\ReturnEntryAddenda;
 
 class AddendaRecordTest extends TestCase
 {
-    /**
-     * @throws \RW\ACH\ValidationException
-     */
-    public function testValidReturnStringInputGeneratesValidReturnAddendaRecord()
+    public function validInputsProvider()
     {
-        $input   = '799R02111000020000044      05320160                                            111000026188605';
-        $addenda = AddendaRecord::buildFromString($input);
-        $this->assertEquals($input, $addenda->toString());
+        $standardInput = 'C02111000020000044      05320160                                            111000026188605';
+
+        return [
+            'ReturnEntry'    => [
+                $noticeOfChangeInput = '799' . $standardInput,
+                ReturnEntryAddenda::class,
+            ],
+            'NoticeOfChange' => [
+                $returnEntryInput = '798' . $standardInput,
+                NoticeOfChangeAddenda::class,
+            ],
+        ];
+    }
+
+    public function invalidInputsProvider()
+    {
+        $standardInput = 'C02111000020000044      05320160                                            111000026188605';
+
+        return [
+            'Invalid' => [
+                $invalidInput = '797' . $standardInput,
+                \InvalidArgumentException::class,
+            ],
+        ];
     }
 
     /**
+     * @param $input
+     * @param $output
      * @throws \RW\ACH\ValidationException
+     * @dataProvider validInputsProvider
      */
-    public function testValidChangeStringInputGeneratesValidChangeAddendaRecord()
+    public function testValidInputGeneratesCorrectAddendaRecord($input, $output)
     {
-        $input   = '798C02111000020000044      05320160                                            111000026188605';
         $addenda = AddendaRecord::buildFromString($input);
         $this->assertEquals($input, $addenda->toString());
+        $this->assertEquals($output, get_class($addenda));
     }
 
-    public function testInvalidAddendaTypeThrowsInvalidArgumentException()
+    /**
+     * @param $input
+     * @param $output
+     * @dataProvider invalidInputsProvider
+     */
+    public function testInvalidAddendaTypeThrowsInvalidArgumentException($input, $output)
     {
         $e = null;
-        $input = '797C02111000020000044      05320160                                            111000026188605';
         try {
             AddendaRecord::buildFromString($input);
         } catch (\Exception $e) {
         }
 
         $this->assertNotNull($e);
-        $this->assertEquals(\InvalidArgumentException::class, get_class($e));
+        $this->assertEquals($output, get_class($e));
     }
 }

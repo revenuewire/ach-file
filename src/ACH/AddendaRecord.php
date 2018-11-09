@@ -48,7 +48,7 @@ abstract class AddendaRecord extends FileComponent
 
     /**
      * @param $input
-     * @return string
+     * @return string|bool false if string does not correspond to a known addenda type
      */
     public static function getAddendaClassNameFromString($input): string
     {
@@ -58,7 +58,7 @@ abstract class AddendaRecord extends FileComponent
             case '99':
                 return ReturnEntryAddenda::class;
             default:
-                throw new \InvalidArgumentException('Unrecognized addenda type');
+                return false;
         }
     }
 }
