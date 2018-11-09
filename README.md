@@ -128,17 +128,17 @@ $debitEntryDetailTwo = new \RW\ACH\EntryDetailRecord([
 ], 4);
 
 $batchOne = new \RW\ACH\Batch($creditBatchHeader);
-$batchOne->addComponent($creditEntryDetailOne)
-    ->addComponent($creditEntryDetailTwo)
+$batchOne->addEntryDetailRecord($creditEntryDetailOne)
+    ->addEntryDetailRecord($creditEntryDetailTwo)
     ->close();
 $batchTwo = new \RW\ACH\Batch($debitBatchHeader);
-$batchTwo->addComponent($debitEntryDetailOne)
-    ->addComponent($debitEntryDetailTwo)
+$batchTwo->addEntryDetailRecord($debitEntryDetailOne)
+    ->addEntryDetailRecord($debitEntryDetailTwo)
     ->close();
 
 $achPaymentFile = new \RW\ACH\File($achFileHeaderRecord);
-$achPaymentFile->addComponent($batchOne)
-    ->addComponent($batchTwo)
+$achPaymentFile->addBatch($batchOne)
+    ->addBatch($batchTwo)
     ->close();
 ```
 
@@ -224,14 +224,14 @@ $fileHeader = $achReturnFile->getHeaderRecord();
 $exampleData = $fileHeader->getField(\RW\ACH\FileHeader::EXAMPLE_FIELD_NAME);
 
 /** @var Batch $batch */
-foreach ($achReturnFile->getCollection() as $batch) {
+foreach ($achReturnFile->getBatches() as $batch) {
     // Get data about batches from the header
     $batchHeader = $batch->getHeaderRecord();
     $exampleData = $batchHeader->getField(\RW\ACH\BatchHeader::EXAMPLE_FIELD_NAME);
 
-    foreach ($batch->getCollection() as $entryDetailRecord) {
+    foreach ($batch->getEntryDetailRecords() as $entryDetailRecord) {
         // Process the entry detail record in some way
-		switch (get_class($entryDetailRecord->getAddendaRecord())) {
+        switch (get_class($entryDetailRecord->getAddendaRecord())) {
             case \RW\ACH\NoticeOfChangeAddenda::class:
                 // handleNoticeOfChange($entryDetailRecord);
                 break;

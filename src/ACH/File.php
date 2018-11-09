@@ -50,16 +50,24 @@ class File extends ComponentCollection
     }
 
     /**
-     * Set the File Control record.
+     * Add a batch to the file
      *
-     * @param FileControlRecord $v
-     * @return File
+     * @param $batch
+     * @return File for easy method chaining
      */
-    public function setControlRecord($v): File
+    public function addBatch($batch)
     {
-        $this->controlRecord = $v;
+        return $this->addComponent($batch);
+    }
 
-        return $this;
+    /**
+     * Get an array of batches belonging to the ACH file
+     *
+     * @return array|ComponentCollection[]
+     */
+    public function getBatches()
+    {
+        return parent::getCollection();
     }
 
     /**
@@ -95,5 +103,18 @@ class File extends ComponentCollection
         }
 
         return $this->controlRecord;
+    }
+
+    /**
+     * Set the File Control record.
+     *
+     * @param FileControlRecord $v
+     * @return File
+     */
+    private function setControlRecord($v): File
+    {
+        $this->controlRecord = $v;
+
+        return $this;
     }
 }

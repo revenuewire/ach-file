@@ -130,7 +130,7 @@ abstract class ComponentCollection
      *
      * @return ComponentCollection[]|FileComponent[]
      */
-    public function getCollection(): array
+    protected function getCollection(): array
     {
         return $this->collection;
     }
@@ -148,7 +148,7 @@ abstract class ComponentCollection
      * @param ComponentCollection|FileComponent $component
      * @return static for clean method chaining.
      */
-    public function addComponent($component)
+    protected function addComponent($component)
     {
         if (!$this->isOpen) {
             throw new \BadMethodCallException('Unable to add entries to a closed collection');

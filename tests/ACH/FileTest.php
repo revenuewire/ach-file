@@ -98,7 +98,7 @@ OUTPUT;
 OUTPUT;
 
         $singleEntryBatch = new Batch($this->validPPDBatchHeaderRecord);
-        $singleEntryBatch->addComponent(new EntryDetailRecord($this->validEntryDetailData, 1));
+        $singleEntryBatch->addEntryDetailRecord(new EntryDetailRecord($this->validEntryDetailData, 1));
         $singleEntryBatch->close();
         $singleEntryBatchOutput = <<<OUTPUT
 101 12345678901234567891805291519A094101ABCDEFG0123456789      ABCDEFG9876543210              
@@ -110,11 +110,11 @@ OUTPUT;
 OUTPUT;
 
         $multiEntryBatch = new Batch($this->validPPDBatchHeaderRecord);
-        $multiEntryBatch->addComponent(new EntryDetailRecord($this->validEntryDetailData, 1));
-        $multiEntryBatch->addComponent(new EntryDetailRecord($this->validEntryDetailData, 2));
+        $multiEntryBatch->addEntryDetailRecord(new EntryDetailRecord($this->validEntryDetailData, 1));
+        $multiEntryBatch->addEntryDetailRecord(new EntryDetailRecord($this->validEntryDetailData, 2));
         $this->validEntryDetailData[EntryDetailRecord::TRANSACTION_CODE] = EntryDetailRecord::CHECKING_DEBIT_PAYMENT;
         $this->validEntryDetailData[EntryDetailRecord::AMOUNT] = '15.00';
-        $multiEntryBatch->addComponent(new EntryDetailRecord($this->validEntryDetailData, 3));
+        $multiEntryBatch->addEntryDetailRecord(new EntryDetailRecord($this->validEntryDetailData, 3));
         $multiEntryBatch->close();
         $multiEntryBatchOutput = <<<OUTPUT
 101 12345678901234567891805291519A094101ABCDEFG0123456789      ABCDEFG9876543210              
@@ -261,7 +261,7 @@ OUTPUT;
         try {
             $paymentFile = new File($this->validFileHeaderRecord);
             $paymentFile->close();
-            $paymentFile->addComponent(new Batch($this->validPPDBatchHeaderRecord));
+            $paymentFile->addBatch(new Batch($this->validPPDBatchHeaderRecord));
         } catch (\BadMethodCallException $e) {
         }
 
@@ -281,7 +281,7 @@ OUTPUT;
         /** @var Batch $batch */
         foreach ($input as $batch) {
             $output += $batch->getEntryAndAddendaCount();
-            $paymentFile->addComponent($batch);
+            $paymentFile->addBatch($batch);
         }
         $paymentFile->close();
 
@@ -300,7 +300,7 @@ OUTPUT;
         $creditSum   = '0';
         /** @var Batch $batch */
         foreach ($input as $batch) {
-            $paymentFile->addComponent($batch);
+            $paymentFile->addBatch($batch);
             $debitSum = bcadd($batch->getEntryDollarSum(EntryDetailRecord::DEBIT_TRANSACTION_CODES), $debitSum, 0);
             $creditSum = bcadd($batch->getEntryDollarSum(EntryDetailRecord::CREDIT_TRANSACTION_CODES), $creditSum, 0);
         }
@@ -319,7 +319,7 @@ OUTPUT;
     {
         $paymentFile = new File($this->validFileHeaderRecord);
         foreach ($input as $batch) {
-            $paymentFile->addComponent($batch);
+            $paymentFile->addBatch($batch);
         }
         $paymentFile->close();
 

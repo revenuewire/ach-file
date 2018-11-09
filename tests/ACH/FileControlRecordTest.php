@@ -62,8 +62,8 @@ class FileControlRecordTest extends TestCase
         while ($batchNumber < 4) {
             $validBatchHeaderData[BatchHeaderRecord::BATCH_NUMBER] = $batchNumber;
             $batch                                                 = new Batch(new BatchHeaderRecord($validBatchHeaderData));
-            $batch->addComponent(new EntryDetailRecord($validEntryDetailData1, 1));
-            $batch->addComponent(new EntryDetailRecord($validEntryDetailData2, 2));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($validEntryDetailData1, 1));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($validEntryDetailData2, 2));
             $batch->close();
             $batches[] = $batch;
             $batchNumber++;

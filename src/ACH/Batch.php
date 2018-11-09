@@ -9,8 +9,6 @@
 namespace RW\ACH;
 
 
-use InvalidArgumentException;
-
 /**
  * Class Batch
  *
@@ -26,34 +24,31 @@ class Batch extends ComponentCollection
     /**
      * Perform validation on Entry Detail Records, and add them to the batch collection.
      *
-     * @param ComponentCollection|FileComponent $component
+     * @param FileComponent $entryDetailRecord
      * @return static|ComponentCollection
      * @throws ValidationException
      */
-    public function addComponent($component)
+    public function addEntryDetailRecord($entryDetailRecord)
     {
         // Ensure Entry Detail Records contain matching trace numbers to the Batch Header
         $batchHeaderODFIFD       = $this->headerRecord->getField(BatchHeaderRecord::ORIGINATING_DFI_ID);
-        $entryDetailRecordODFIID = mb_substr($component->getField(EntryDetailRecord::TRACE_NUMBER), 0, 8);
+        $entryDetailRecordODFIID = mb_substr($entryDetailRecord->getField(EntryDetailRecord::TRACE_NUMBER), 0, 8);
 
         if ($batchHeaderODFIFD !== $entryDetailRecordODFIID) {
             throw new ValidationException('Entry Detail Record trace number provided does not match the ODFI ID in the Batch Header record.');
         }
 
-        return parent::addComponent($component);
+        return parent::addComponent($entryDetailRecord);
     }
 
     /**
-     * Set the batch control record for the batch.
+     * Get an array of Entry Detail Records belonging to the batch
      *
-     * @param BatchControlRecord $batchControlRecord
-     * @return Batch
+     * @return array|FileComponent[]
      */
-    public function setControlRecord($batchControlRecord): Batch
+    public function getEntryDetailRecords()
     {
-        $this->controlRecord = $batchControlRecord;
-
-        return $this;
+        return parent::getCollection();
     }
 
     /**
@@ -129,5 +124,16 @@ class Batch extends ComponentCollection
         }
 
         return $this->controlRecord;
+    }
+
+    /**
+     * @param BatchControlRecord $batchControlRecord
+     * @return Batch
+     */
+    private function setControlRecord($batchControlRecord): Batch
+    {
+        $this->controlRecord = $batchControlRecord;
+
+        return $this;
     }
 }

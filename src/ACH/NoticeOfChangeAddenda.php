@@ -70,7 +70,7 @@ class NoticeOfChangeAddenda extends AddendaRecord
      * @return NoticeOfChangeAddenda
      * @throws ValidationException
      */
-    public static function buildFromString($input)
+    public static function buildFromString($input): self
     {
         return new NoticeOfChangeAddenda(self::getBuildDataFromInputString($input), false);
     }

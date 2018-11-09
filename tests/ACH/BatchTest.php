@@ -67,15 +67,15 @@ OUTPUT;
 OUTPUT;
 
         return [
-            [
+            'No Entry' => [
                 [],
                 $noEntryOutput,
             ],
-            [
+            'Single Entry' => [
                 [$this->validEntryDetailData],
                 $singleEntryOutput,
             ],
-            [
+            'Multi-Entry' => [
                 [
                     $this->validEntryDetailData,
                     $this->validEntryDetailData,
@@ -107,7 +107,7 @@ OUTPUT;
         try {
             $batch = new Batch($this->validBatchHeaderRecord);
             $batch->close();
-            $batch->addComponent(new EntryDetailRecord($this->validEntryDetailData, 1));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($this->validEntryDetailData, 1));
         } catch (\BadMethodCallException $e) {
         }
 
@@ -127,7 +127,7 @@ OUTPUT;
         $output = 0;
         foreach ($input as $k => $entryDetailRecordData) {
             $output++;
-            $batch->addComponent(new EntryDetailRecord($entryDetailRecordData, $k + 1));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($entryDetailRecordData, $k + 1));
         }
 
         $this->assertEquals($output, $batch->getEntryAndAddendaCount());
@@ -151,7 +151,7 @@ OUTPUT;
                 $creditSum = bcadd($entryDetailRecordData[EntryDetailRecord::AMOUNT], $creditSum);
             }
 
-            $batch->addComponent(new EntryDetailRecord($entryDetailRecordData, $k + 1));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($entryDetailRecordData, $k + 1));
         }
         $debitSum = bcmul($debitSum, '100', 0);
         $creditSum = bcmul($creditSum, '100', 0);
@@ -170,7 +170,7 @@ OUTPUT;
     {
         $batch  = new Batch($this->validBatchHeaderRecord);
         foreach ($input as $k => $entryDetailRecordData) {
-            $batch->addComponent(new EntryDetailRecord($entryDetailRecordData, $k + 1));
+            $batch->addEntryDetailRecord(new EntryDetailRecord($entryDetailRecordData, $k + 1));
         }
         $batch->close();
 

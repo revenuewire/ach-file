@@ -162,7 +162,7 @@ class ReturnEntryAddenda extends AddendaRecord
      * @return ReturnEntryAddenda
      * @throws ValidationException
      */
-    public static function buildFromString($input)
+    public static function buildFromString($input): self
     {
         $buildData                      = self::getBuildDataFromInputString($input);
         $buildData[self::DATE_OF_DEATH] = DateTime::createFromFormat('ymd', $buildData[self::DATE_OF_DEATH]);
