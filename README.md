@@ -1,10 +1,24 @@
 # ACH File
 Generate an ACH File object from data for submission to an ODFI, or create an ACH File object from
-a return file provided by the ODFI.
+a return/reject file provided by the ODFI.
 
 ## Requirements
 * PHP 7
 * PHPUnit 7.1 for unit testing
+
+## Installation
+* Install using composer:
+```json
+"require": {
+    revenuewire/ach-file: "1.1.*"
+}
+```
+
+## Run Tests
+* Test using phpunit - with xdebug enabled, tests will take longer but provide code coverage data
+```
+php vendor/bin/phpunit
+```
 
 ## Usage (Code Examples)
 #### Creating an ACH File From Generated Data
