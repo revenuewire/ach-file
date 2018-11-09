@@ -42,11 +42,6 @@ abstract class FileComponent
     protected const VALIDATOR_DATETIME = 2;
     protected const VALIDATOR_ARRAY    = 3;
 
-    /* SERVICE CLASS CODES */
-    public const MIXED_SERVICE_CLASS  = '200';
-    public const CREDIT_SERVICE_CLASS = '220';
-    public const DEBIT_SERVICE_CLASS  = '225';
-
     /* REQUIREMENT TYPES */
     // Information necessary to ensure the proper routing and/or posting of an ACH entry
     protected const FIELD_INCLUSION_MANDATORY = 'M';

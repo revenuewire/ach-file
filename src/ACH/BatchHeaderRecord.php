@@ -55,6 +55,11 @@ class BatchHeaderRecord extends FileComponent
         self::EFFECTIVE_ENTRY_DATE     => null,
     ];
 
+    /* SERVICE CLASS CODES */
+    public const MIXED_SERVICE_CLASS  = '200';
+    public const CREDIT_SERVICE_CLASS = '220';
+    public const DEBIT_SERVICE_CLASS  = '225';
+
     // region VALID STANDARD ENTRY CLASS (SEC) CODES
     // Accounts Receivable Entry - This Standard Entry Class Code enables originators to convert to a Single Entry
     // ACH debit a consumer check received via the U.S. mail or at a drop-box location for the payment of goods or
