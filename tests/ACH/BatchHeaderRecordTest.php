@@ -27,18 +27,15 @@ class BatchHeaderRecordTest extends TestCase
     public function missingRequiredFieldInputsProvider()
     {
         return [
-            [
-                // Null Input
+            'Null Input' => [
                 null,
                 \InvalidArgumentException::class,
             ],
-            [
-                // Empty Input
+            'Empty Input' => [
                 [],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Service Class Code
+            'Missing Service Class Code' => [
                 [
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
                     BatchHeaderRecord::COMPANY_ID                => self::VALID_COMPANY_IDENTIFICATION,
@@ -49,8 +46,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Company Name
+            'Missing Company Name' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_ID                => self::VALID_COMPANY_IDENTIFICATION,
@@ -61,8 +57,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Company Identification
+            'Missing Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -73,8 +68,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Standard Entry Class Code
+            'Missing Standard Entry Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -85,8 +79,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Company Entry Description
+            'Missing Company Entry Description' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -97,8 +90,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Originating DFI ID
+            'Missing Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -109,8 +101,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 \InvalidArgumentException::class,
             ],
-            [
-                // Missing Batch Number
+            'Missing Batch Number' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -127,8 +118,7 @@ class BatchHeaderRecordTest extends TestCase
     public function invalidInputsProvider()
     {
         return [
-            [
-                // Invalid Service Class Code
+            'Invalid Service Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => '201',
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -140,8 +130,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Service Class Code
+            'Empty Service Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => '',
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -153,8 +142,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Service Class Code
+            'Null Service Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => null,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -166,8 +154,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Company Name
+            'Invalid Company Name' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => 'B*d Name',
@@ -179,8 +166,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Company Name
+            'Long Company Name' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => 'Long Company Name',
@@ -192,8 +178,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Company Name
+            'Empty Company Name' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => '',
@@ -205,8 +190,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Company Name
+            'Null Company Name' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => null,
@@ -218,12 +202,11 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Company Identification
+            'Invalid Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
-                    BatchHeaderRecord::COMPANY_ID                => 'A234567890',
+                    BatchHeaderRecord::COMPANY_ID                => '%234567&90',
                     BatchHeaderRecord::STANDARD_ENTRY_CLASS_CODE => self::VALID_STANDARD_ENTRY_CLASS_CODE,
                     BatchHeaderRecord::COMPANY_ENTRY_DESCRIPTION => self::VALID_COMPANY_ENTRY_DESCRIPTION,
                     BatchHeaderRecord::ORIGINATING_DFI_ID        => self::VALID_ORIGINATING_DFI_ID,
@@ -231,8 +214,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Company Identification
+            'Long Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -244,8 +226,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Short Company Identification
+            'Short Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -257,8 +238,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Company Identification
+            'Empty Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -270,8 +250,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Company Identification
+            'Null Company Identification' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -283,8 +262,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Standard Entry Class Code
+            'Invalid Standard Entry Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -296,8 +274,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Short Standard Entry Class Code
+            'Short Standard Entry Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -309,8 +286,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Standard Entry Class Code
+            'Long Standard Entry Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -322,8 +298,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty
+            'Empty' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -335,8 +310,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Standard Entry Class Code
+            'Null Standard Entry Class Code' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -348,8 +322,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Company Entry Description
+            'Invalid Company Entry Description' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -361,8 +334,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Company Entry Description
+            'Long Company Entry Description' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -374,8 +346,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Company Entry Description
+            'Empty Company Entry Description' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -387,8 +358,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Company Entry Description
+            'Null Company Entry Description' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -400,8 +370,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Originating DFI ID
+            'Invalid Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -413,8 +382,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Short Originating DFI ID
+            'Short Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -426,8 +394,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Originating DFI ID
+            'Long Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -439,8 +406,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Originating DFI ID
+            'Empty Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -452,8 +418,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Originating DFI ID
+            'Null Originating DFI ID' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -465,8 +430,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Invalid Batch Number
+            'Invalid Batch Number' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -478,8 +442,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Long Batch Number
+            'Long Batch Number' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -491,8 +454,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Empty Batch Number
+            'Empty Batch Number' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,
@@ -504,8 +466,7 @@ class BatchHeaderRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            [
-                // Null Batch Number
+            'Null Batch Number' => [
                 [
                     BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
                     BatchHeaderRecord::COMPANY_NAME              => self::VALID_COMPANY_NAME,

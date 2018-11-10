@@ -37,8 +37,7 @@ class BatchControlRecordTest extends TestCase
     public function validInputsProvider()
     {
         return [
-            [
-                // No Entry Detail Records
+            'No Entry Detail Records' => [
                 [
                     BatchHeaderRecord::class => new BatchHeaderRecord([
                         BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
@@ -55,8 +54,7 @@ class BatchControlRecordTest extends TestCase
                 ],
                 '820000000000000000000000000000000000000000000123456789                         876543210000001',
             ],
-            [
-                // Single Entry Detail Record
+            'Single Entry Detail Record' => [
                 [
                     BatchHeaderRecord::class => new BatchHeaderRecord([
                         BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,
@@ -82,8 +80,7 @@ class BatchControlRecordTest extends TestCase
                 ],
                 '820000000100113000020000000000000000000011000123456789                         876543210000001',
             ],
-            [
-                // Multiple Entry Detail Records
+            'Multiple Entry Detail Records' => [
                 [
                     BatchHeaderRecord::class => new BatchHeaderRecord([
                         BatchHeaderRecord::SERVICE_CLASS_CODE        => BatchHeaderRecord::MIXED_SERVICE_CLASS,

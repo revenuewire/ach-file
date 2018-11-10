@@ -146,7 +146,7 @@ class BatchControlRecord extends FileComponent
             ],
             self::COMPANY_ID                       => [
                 self::FIELD_INCLUSION => self::FIELD_INCLUSION_REQUIRED,
-                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^\d{10}$/'],
+                self::VALIDATOR       => [self::VALIDATOR_REGEX, '/^[a-zA-Z0-9]{10}$/'],
                 self::LENGTH          => 10,
                 self::POSITION_START  => 45,
                 self::POSITION_END    => 54,
