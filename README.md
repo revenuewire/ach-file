@@ -10,12 +10,12 @@ a return/reject file provided by the ODFI.
 * Install using composer:
 ```json
 "require": {
-    revenuewire/ach-file: "1.1.*"
+    "revenuewire/ach-file": "1.1.*"
 }
 ```
 
 ## Run Tests
-* Test using phpunit - with xdebug enabled, tests will take longer but provide code coverage data
+* Test using phpunit - with xdebug enabled tests will provide code coverage data
 ```
 php vendor/bin/phpunit
 ```
