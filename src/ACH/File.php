@@ -11,12 +11,16 @@ namespace RW\ACH;
 
 class File extends ComponentCollection
 {
+    const BLOCKING_FILE_CONTROL_RECORD = '9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999';
+
     /** @var FileHeaderRecord */
     protected $headerRecord;
     /** @var Batch[] */
     protected $collection = [];
 
     /**
+     * Build an ACH file from a resource
+     *
      * @param resource $handle
      * @param int      $count an optional variable to hold the number of records added
      * @return File
@@ -47,6 +51,28 @@ class File extends ComponentCollection
             ->close();
 
         return $paymentFile;
+    }
+
+    /**
+     * Build a list of ACH files from a resource that could contain multiple files, possibly separated by blocking records
+     *
+     * @param resource $handle
+     * @param int      $count an optional variable to hold the number of records added
+     * @return array
+     */
+    public static function buildFromStackedResource($handle, &$count = null)
+    {
+        $files = [];
+        try {
+            while (!feof($handle)) {
+                $files[] = self::buildFromResource($handle, $count);
+                $handle = self::clearBlockingFileControlRecords($handle);
+            }
+        } catch (ValidationException $e) {
+            // noop - this should indicate that we're at the end of the file
+        }
+
+        return $files;
     }
 
     /**
@@ -116,5 +142,24 @@ class File extends ComponentCollection
         $this->controlRecord = $v;
 
         return $this;
+    }
+
+    /**
+     * @param resource $handle
+     * @return resource
+     */
+    private static function clearBlockingFileControlRecords($handle)
+    {
+        // Consume any blocking records
+        do {
+            $initialPosition = ftell($handle);
+            $record          = rtrim(fgets($handle));
+        } while ($record === self::BLOCKING_FILE_CONTROL_RECORD);
+
+        // Rewind to the start of the line, in case there's additional files to process
+        fseek($handle, $initialPosition);
+
+        // This is just to explicitly show that $handle has mutated
+        return $handle;
     }
 }
