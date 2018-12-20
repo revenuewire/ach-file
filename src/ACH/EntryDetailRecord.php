@@ -262,7 +262,7 @@ class EntryDetailRecord extends FileComponent
     /**
      * Returns the Addenda record, if one exists.
      *
-     * @return AddendaRecord
+     * @return AddendaRecord|null
      */
     public function getAddendaRecord(): AddendaRecord
     {
