@@ -613,6 +613,16 @@ class EntryDetailRecordTest extends TestCase
     /**
      * @throws ValidationException
      */
+    public function testValidStringInputWithAddendaIndicatorHasAddendaRecord()
+    {
+        $entryDetailRecordString = '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    1123456780000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($entryDetailRecordString);
+        $this->assertTrue($entryDetailRecord->hasAddendaRecord());
+    }
+
+    /**
+     * @throws ValidationException
+     */
     public function testValidStringInputWithAddendaGeneratesValidEntryDetailRecord()
     {
         $addendaString = '799C02111000020000020      05140518051403164                                   111000024637403';
