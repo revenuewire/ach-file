@@ -108,7 +108,7 @@ class EntryDetailRecordTest extends TestCase
     public function invalidInputsProvider()
     {
         return [
-            'Invalid Transaction Code' => [
+            'Invalid Transaction Code'                     => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => '21',
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -119,7 +119,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty Transaction Code' => [
+            'Empty Transaction Code'                       => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => '',
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -130,7 +130,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null Transaction Code' => [
+            'Null Transaction Code'                        => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => null,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -141,7 +141,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Transit ABA Number (letters)' => [
+            'Invalid Transit ABA Number (letters)'         => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => 'A2345678',
@@ -163,7 +163,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Transit ABA Number' => [
+            'Long Transit ABA Number'                      => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => '1234567890',
@@ -174,7 +174,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Short Transit ABA Number' => [
+            'Short Transit ABA Number'                     => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => '12345678',
@@ -185,7 +185,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty Transit ABA Number' => [
+            'Empty Transit ABA Number'                     => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => '',
@@ -196,7 +196,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null Transit ABA Number' => [
+            'Null Transit ABA Number'                      => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => null,
@@ -207,7 +207,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid DFI Account Number' => [
+            'Invalid DFI Account Number'                   => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -218,7 +218,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long DFI Account Number' => [
+            'Long DFI Account Number'                      => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -229,7 +229,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty DFI Account Number' => [
+            'Empty DFI Account Number'                     => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -240,7 +240,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null DFI Account Number' => [
+            'Null DFI Account Number'                      => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -251,7 +251,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Amount' => [
+            'Invalid Amount'                               => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -262,7 +262,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Amount' => [
+            'Long Amount'                                  => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -273,7 +273,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Another Long Amount' => [
+            'Another Long Amount'                          => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -284,7 +284,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty Amount' => [
+            'Empty Amount'                                 => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -295,7 +295,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null Amount' => [
+            'Null Amount'                                  => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -306,7 +306,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Id Number' => [
+            'Invalid Id Number'                            => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -318,7 +318,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Id Number' => [
+            'Long Id Number'                               => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -330,7 +330,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Individual Name' => [
+            'Invalid Individual Name'                      => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -341,7 +341,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Individual Name' => [
+            'Long Individual Name'                         => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -352,7 +352,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty Individual Name' => [
+            'Empty Individual Name'                        => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -363,7 +363,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null Individual Name' => [
+            'Null Individual Name'                         => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -374,7 +374,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Bank Draft Indicator' => [
+            'Invalid Bank Draft Indicator'                 => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -386,7 +386,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Bank Draft Indicator' => [
+            'Long Bank Draft Indicator'                    => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -398,7 +398,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Addenda Indicator' => [
+            'Invalid Addenda Indicator'                    => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -410,7 +410,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Addenda Indicator' => [
+            'Long Addenda Indicator'                       => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -422,7 +422,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Invalid Trace Number' => [
+            'Invalid Trace Number'                         => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -434,7 +434,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Long Trace Number' => [
+            'Long Trace Number'                            => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -446,7 +446,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Short Trace Number' => [
+            'Short Trace Number'                           => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -458,7 +458,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Empty Trace Number' => [
+            'Empty Trace Number'                           => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -470,7 +470,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 ValidationException::class,
             ],
-            'Null Trace Number' => [
+            'Null Trace Number'                            => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -488,7 +488,7 @@ class EntryDetailRecordTest extends TestCase
     public function validInputsProvider()
     {
         return [
-            'Standard Entries' => [
+            'Standard Entries'                 => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -499,7 +499,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 '62211300002301234-567-891011 0000001100               A VALID COMPANY NAME    0123456780000001',
             ],
-            'Custom Id Number' => [
+            'Custom Id Number'                 => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -511,7 +511,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 '62211300002301234-567-891011 0000001100AF34B52        A VALID COMPANY NAME    0123456780000001',
             ],
-            'Custom Draft Indicator' => [
+            'Custom Draft Indicator'           => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -523,7 +523,7 @@ class EntryDetailRecordTest extends TestCase
                 ],
                 '62211300002301234-567-891011 0000001100               A VALID COMPANY NAME  1*0123456780000001',
             ],
-            'Custom Addenda Indicator' => [
+            'Custom Addenda Indicator'         => [
                 [
                     EntryDetailRecord::TRANSACTION_CODE   => EntryDetailRecord::CHECKING_CREDIT_DEPOSIT,
                     EntryDetailRecord::TRANSIT_ABA_NUMBER => self::VALID_TRANSIT_ABA_NUMBER,
@@ -616,7 +616,7 @@ class EntryDetailRecordTest extends TestCase
     public function testValidStringInputWithAddendaIndicatorHasAddendaRecord()
     {
         $entryDetailRecordString = '62212345678901234-567-891011 0000001100               A VALID COMPANY NAME    1123456780000001';
-        $entryDetailRecord = EntryDetailRecord::buildFromString($entryDetailRecordString);
+        $entryDetailRecord       = EntryDetailRecord::buildFromString($entryDetailRecordString);
         $this->assertTrue($entryDetailRecord->hasAddendaRecord());
     }
 
@@ -635,5 +635,47 @@ class EntryDetailRecordTest extends TestCase
         $output = "{$entryDetailRecordString}\n{$addendaString}";
 
         $this->assertEquals($output, $entryDetailRecord->toString());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidRecordIsNotRejected()
+    {
+        $input             = '622011302742459882897142539  00000089513549           COMPANY 5               0091000010000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($input);
+        $this->assertFalse($entryDetailRecord->isRejected());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testRejectedRecordIsRejected()
+    {
+        $input             = '6221210002484088258165       00004093823529           PAYMOTION               0REJ060300000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($input);
+        $this->assertTrue($entryDetailRecord->isRejected());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidRecordHasNoRejectCode()
+    {
+        $input             = '622011302742459882897142539  00000089513549           COMPANY 5               0091000010000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($input);
+        $this->assertNull($entryDetailRecord->getRejectCode());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testRejectCodeHasMatchingMessage()
+    {
+        $input             = '6221210002484088258165       00004093823529           PAYMOTION               0REJ050200000001';
+        $entryDetailRecord = EntryDetailRecord::buildFromString($input);
+        $rejectCode = $entryDetailRecord->getRejectCode();
+        $this->assertEquals(5020, $rejectCode);
+        $this->assertEquals(EntryDetailRecord::REJECT_CODES[5020], EntryDetailRecord::REJECT_CODES[$rejectCode]);
     }
 }
