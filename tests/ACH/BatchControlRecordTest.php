@@ -169,4 +169,40 @@ class BatchControlRecordTest extends TestCase
         $fhr   = BatchControlRecord::buildFromString($input);
         $this->assertEquals($input, $fhr->toString());
     }
+
+    /**
+     * @throws \RW\ACH\ValidationException
+     */
+    public function testValidRecordIsNotRejected()
+    {
+        $input = '622011302742459882897142539  00000089513549           COMPANY 5               0091000010000001';
+        $batchControlRecord = BatchControlRecord::buildFromString($input);
+        $this->assertFalse($batchControlRecord->isRejected());
+    }
+
+    /**
+     * @throws \RW\ACH\ValidationException
+     */
+    public function testRejectedRecordIsRejected()
+    {
+        $input = '6221210002484088258165       00004093823529           PAYMOTION               0REJ060300000001';
+        $batchControlRecord = BatchControlRecord::buildFromString($input);
+        $this->assertTrue($batchControlRecord->isRejected());
+    }
+
+    public function testValidRecordHasNoRejectCode()
+    {
+        $input = '622011302742459882897142539  00000089513549           COMPANY 5               0091000010000001';
+        $batchControlRecord = BatchControlRecord::buildFromString($input);
+        $this->assertNull($batchControlRecord->getRejectCode());
+    }
+
+    public function testRejectCodeHasMatchingMessage()
+    {
+        $input = '6221210002484088258165       00004093823529           PAYMOTION               0REJ050200000001';
+        $batchControlRecord = BatchControlRecord::buildFromString($input);
+        $rejectCode = $batchControlRecord->getRejectCode();
+        $this->assertEquals(5020, $rejectCode);
+        $this->assertEquals(BatchControlRecord::REJECT_CODES[5020], BatchControlRecord::REJECT_CODES[$rejectCode]);
+    }
 }

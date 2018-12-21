@@ -571,4 +571,46 @@ class BatchHeaderRecordTest extends TestCase
         $fhr   = BatchHeaderRecord::buildFromString($input);
         $this->assertEquals($input, $fhr->toString());
     }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidRecordIsNotRejected()
+    {
+        $input = '5200PAYMOTION       TRANSFER 10959      WFMSPAYMO1PPDPAYMENTS  181213181213   1091000010000001';
+        $batchHeaderRecord = BatchHeaderRecord::buildFromString($input);
+        $this->assertFalse($batchHeaderRecord->isRejected());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testRejectedRecordIsRejected()
+    {
+        $input = '5200PAYMOTION       TRANSFER 10979      WFMSPAYMO1PPDPAYMENTS  181213181213   1REJ000010000001';
+        $batchHeaderRecord = BatchHeaderRecord::buildFromString($input);
+        $this->assertTrue($batchHeaderRecord->isRejected());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testValidRecordHasNoRejectCode()
+    {
+        $input = '5200PAYMOTION       TRANSFER 10959      WFMSPAYMO1PPDPAYMENTS  181213181213   1091000010000001';
+        $batchHeaderRecord = BatchHeaderRecord::buildFromString($input);
+        $this->assertNull($batchHeaderRecord->getRejectCode());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function testRejectCodeHasMatchingMessage()
+    {
+        $input = '5200PAYMOTION       TRANSFER 10979      WFMSPAYMO1PPDPAYMENTS  181213181213   1REJ050200000001';
+        $batchHeaderRecord = BatchHeaderRecord::buildFromString($input);
+        $rejectCode = $batchHeaderRecord->getRejectCode();
+        $this->assertEquals(5020, $rejectCode);
+        $this->assertEquals(BatchHeaderRecord::REJECT_CODES[5020], BatchHeaderRecord::REJECT_CODES[$rejectCode]);
+    }
 }
