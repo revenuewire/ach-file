@@ -164,9 +164,7 @@ class ReturnEntryAddenda extends AddendaRecord
      */
     public static function buildFromString($input): self
     {
-        $buildData                      = self::getBuildDataFromInputString($input);
-        $buildData[self::DATE_OF_DEATH] = DateTime::createFromFormat('ymd', $buildData[self::DATE_OF_DEATH]);
-
+        $buildData = self::getBuildDataFromInputString($input);
         return new ReturnEntryAddenda($buildData, false);
     }
 
