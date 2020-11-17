@@ -113,6 +113,10 @@ class File extends ComponentCollection
      * The block count is each complete and partial collection of 10 lines as 1 block
      * Block count is equal to all records in the file, rounded up to the nearest multiple of 10, and divided by 10
      *
+     * File header + file control = 2
+     * Batches = 2 * batch count
+     * Entries = entry count
+     *  
      * @return int
      */
     public function getBlockCount(): int
