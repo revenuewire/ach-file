@@ -108,6 +108,23 @@ class File extends ComponentCollection
     }
 
     /**
+     * Get the block count for the file control record
+     *
+     * The block count is each complete and partial collection of 10 lines as 1 block
+     * Block count is equal to all records in the file, rounded up to the nearest multiple of 10, and divided by 10
+     *
+     * File header + file control = 2
+     * Batches = 2 * batch count
+     * Entries = entry count
+     *  
+     * @return int
+     */
+    public function getBlockCount(): int
+    {
+        return (ceil((2 + (2 * count($this->collection)) + $this->getEntryAndAddendaCount()) / 10) * 10) / 10;
+    }
+
+    /**
      * @return FileComponent
      * @throws ValidationException
      */
@@ -120,7 +137,7 @@ class File extends ComponentCollection
 
             $this->controlRecord = FileControlRecord::buildFromBatchData(
                 (string) count($this->collection),
-                "{$this->getBlockCount()}",
+                (string) self::getBlockCount(),
                 "{$this->getEntryAndAddendaCount()}",
                 $this->getSumOfTransitNumbers(),
                 $this->getEntryDollarSum(EntryDetailRecord::DEBIT_TRANSACTION_CODES),
