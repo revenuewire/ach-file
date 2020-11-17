@@ -72,11 +72,11 @@ class FileControlRecordTest extends TestCase
         return [
             [
                 [],
-                '9000000000002000000000000000000000000000000000000000000                                       ',
+                '9000000000001000000000000000000000000000000000000000000                                       ',
             ],
             [
                 [$batches[0]],
-                '9000001000006000000020022600004000000001200000000001100                                       ',
+                '9000001000001000000020022600004000000001200000000001100                                       ',
             ],
             [
                 [
@@ -84,7 +84,7 @@ class FileControlRecordTest extends TestCase
                     $batches[1],
                     $batches[2],
                 ],
-                '9000003000014000000060067800012000000003600000000003300                                       ',
+                '9000003000002000000060067800012000000003600000000003300                                       ',
             ],
         ];
     }
@@ -97,24 +97,24 @@ class FileControlRecordTest extends TestCase
      */
     public function testValidInputGeneratesCorrectFileControlRecord($input, $output)
     {
-        $fileHeaderRecord  = new FileHeaderRecord(self::VALID_FILE_HEADER_DATA);
-        $blockCount = $fileHeaderRecord->getBlockCount() + 1; // Always add one for the file control record
         $entryAndAddendaCount = 0;
         $transitSum = 0;
         $debitDollarSum = 0;
         $creditDollarSum = 0;
         /** @var Batch $batch */
         foreach ($input as $batch) {
-            $blockCount += $batch->getBlockCount();
             $entryAndAddendaCount += $batch->getEntryAndAddendaCount();
             $transitSum += $batch->getSumOfTransitNumbers();
             $debitDollarSum = bcadd($batch->getEntryDollarSum(EntryDetailRecord::DEBIT_TRANSACTION_CODES), $debitDollarSum);
             $creditDollarSum = bcadd($batch->getEntryDollarSum(EntryDetailRecord::CREDIT_TRANSACTION_CODES), $creditDollarSum);
         }
+        
+        $batchCount = (string) count($input);
+        $blockCount = (string) (ceil((2 + (2 * count($input)) + $entryAndAddendaCount) / 10) * 10) / 10;
 
         $fileControlRecord = FileControlRecord::buildFromBatchData(
-            ((string) count($input)),
-            "$blockCount",
+            $batchCount,
+            $blockCount,
             "$entryAndAddendaCount",
             $transitSum,
             $debitDollarSum,
@@ -129,7 +129,7 @@ class FileControlRecordTest extends TestCase
      */
     public function testValidStringInputGeneratesValidFileControlRecord()
     {
-        $input = '9000000000002000000000000000000000000000000000000000000                                       ';
+        $input = '9000000000001000000000000000000000000000000000000000000                                       ';
         $fhr   = FileControlRecord::buildFromString($input);
         $this->assertEquals($input, $fhr->toString());
     }
