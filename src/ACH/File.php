@@ -111,7 +111,7 @@ class File extends ComponentCollection
      * Get the block count for the file control record
      *
      * The block count is each complete and partial collection of 10 lines as 1 block
-     * Block count is equal to all lines in the file, rounded up to the nearest multiple of 10, and divided by 10
+     * Block count is equal to all records in the file, rounded up to the nearest multiple of 10, and divided by 10
      *
      * @return int
      */
